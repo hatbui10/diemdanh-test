@@ -78,7 +78,7 @@ body.role-teacher .add-student-box {
         .custom-upload-btn { 
             display: inline-block; width: 48%; background: transparent; border: 1px solid #00f0ff; color: #00f0ff; 
             padding: 12px 5px; font-weight: bold; font-size: 0.85rem; border-radius: 25px; cursor: pointer; 
-            text-transform: uppercase; text-align: center; margin-right: 2%; box-shadow: 0 0 8px rgba(0, 240, 255, 0.2);
+            text-transform: uppercase; text-align: center; margin-right: 2%; margin-top: 3%; box-shadow: 0 0 8px rgba(0, 240, 255, 0.2);
         }
         .custom-upload-btn:active { background: #00f0ff; color: #000; }
         
@@ -389,14 +389,17 @@ margin-right: 20px; /* Thêm dòng này để cách mép phải 20px */
 💾 Sao lưu điểm danh
 </button>
         <!-- Nhóm nút tải file và xóa dữ liệu (Ban đầu ẩn đi) -->
-        <div id="protectedUploadActions" style="display: none;">
-            <label for="excelFileInput" class="custom-upload-btn">📂 Tải lên File Excel</label>
-
-            <input type="file" id="excelFileInput" accept=".xlsx, .xls" style="display: none;" onchange="startProcessingExcel(this)">
-            <button class="btn-danger-top" onclick="clearSystemCache()">XÓA dữ liệu CŨ</button>
-       <!-- ➕ NÚT RESET Ô ĐIỂM DANH MỚI -->
-            <button class="btn-danger-top" style="width: 100%; margin-top: 8px; border-color: #ffd700; color: #ffd700;" onclick="confirmResetTimeSlots()">🔄 RESET TẤT CẢ Ô ĐIỂM DANH</button>
-        </div>
+<div id="protectedUploadActions" style="display: none; align-items: center; gap: 10px;">
+    <!-- Nút tải lên File Excel (Biến thẻ label thành dạng nút bấm ngang) -->
+    <label for="excelFileInput" class="custom-upload-btn" style="margin: 0;margin-top: 3%; cursor: pointer; text-align: center;">📂 Tải lên File Excel</label>
+    
+    <!-- ➕ NÚT RESET Ô ĐIỂM DANH MỚI -->
+    <button class="custom-upload-btn" style="margin: 0;margin-top: 3%; border-color: #ffd700; color: #ffd700; white-space: nowrap;" onclick="confirmResetTimeSlots()">🔄 RESET Ô ĐIỂM DANH</button>
+    
+    <input type="file" id="excelFileInput" accept=".xlsx, .xls" style="display: none;" onchange="startProcessingExcel(this)">
+    
+    <button class="btn-danger-top" onclick="clearSystemCache()" style="display: none;">XÓA dữ liệu CŨ</button>
+</div>
 
     </div>
     <div id="fileStatusMessage" class="file-status">Vui lòng nhập mật khẩu để hiển thị chức năng tải file.</div>
