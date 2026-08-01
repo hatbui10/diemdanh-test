@@ -646,6 +646,9 @@ function startProcessingExcel(input) {
                                     id: oldStudent?.id || (bigClassesDatabase[currentClassKey].students.length + 1),
                                     name: cellB,
                                     phone: cleanPhone,
+                                   // 🟢 Tạo mã định danh kết hợp tên và sđt (đã chuẩn hóa bỏ khoảng trắng, chữ thường)
+                                  uniqueKey: `${cellB.trim().toLowerCase()}_${cleanPhone}`,
+
                                     status: oldStudent?.status || "present",
                                     note: oldStudent?.note || "",
                                     absentTime: oldStudent?.absentTime || "",
@@ -682,6 +685,32 @@ function startProcessingExcel(input) {
         }
     };
     reader.readAsArrayBuffer(file);
+}
+
+// 2. HÀM XỬ LÝ ĐIỂM DANH (Đặt ở đây)
+// ==========================================
+function toggleAbsent(targetUniqueKey) {
+    let found = false;
+    
+    // Duyệt qua tất cả các lớp để tìm học sinh khớp với uniqueKey
+    for (let className in bigClassesDatabase) {
+        const student = bigClassesDatabase[className].students.find(s => s.uniqueKey === targetUniqueKey);
+        if (student) {
+            // Đảo trạng thái vắng / mặt
+            student.status = (student.status === 'absent') ? 'present' : 'absent';
+            student.absentTime = student.status === 'absent' ? new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : "";
+            found = true;
+            
+            // Lưu lại LocalStorage và Firebase, đồng thời làm mới giao diện riêng của lớp đó
+            saveDatabaseState();
+            refreshClassUI(className);
+            break;
+        }
+    }
+    
+    if (!found) {
+        console.warn("Không tìm thấy học sinh với uniqueKey:", targetUniqueKey);
+    }
 }
 
 
@@ -897,7 +926,7 @@ function renderStudentCardsHtml(classKey, students) {
                         <div class="meta-top-row">
                             <span class="student-name">${idx + 1}. ${student.name}</span>
                             <span class="student-phone" >SĐT: ${student.phone && student.phone !== 'Chưa có' ? student.phone.substring(0, 4) + ' *** ' + student.phone.substring(7) : 'Chưa có'}</span>
-                            <button class="btn-quick-absent ${absentActive}" onclick="toggleAbsentStatus('${classKey}', ${student.id})">Vắng</button>
+                            <button class="btn-quick-absent ${absentActive}" onclick="toggleAbsent('${student.uniqueKey}')">Vắng</button>
                         </div>
                     </div>
                     
