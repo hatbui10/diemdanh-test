@@ -526,10 +526,6 @@ function startProcessingExcel(input) {
     progressBar.style.width = '0%';
     progressBar.innerText = '0%';
 
-    // Lưu lại dữ liệu cũ trước khi đọc Excel mới
-    const oldDatabase = JSON.parse(JSON.stringify(bigClassesDatabase));
-    bigClassesDatabase = {};
-
     const reader = new FileReader();
     reader.onload = function(e) {
         try {
@@ -542,6 +538,24 @@ function startProcessingExcel(input) {
                 progressContainer.style.display = 'none';
                 return;
             }
+
+            // 🟢 SAO LƯU DỮ LIỆU CŨ AN TOÀN TRƯỚC KHI KHỞI TẠO MỚI DATABASE
+            const oldDatabase = JSON.parse(JSON.stringify(bigClassesDatabase));
+            
+            // Nếu bigClassesDatabase trong RAM đang trống, thử khôi phục từ localStorage để đảm bảo không mất dữ liệu điểm danh cũ
+            if (Object.keys(oldDatabase).length === 0) {
+                const localCache = localStorage.getItem("big_classes_database");
+                if (localCache) {
+                    try {
+                        Object.assign(oldDatabase, JSON.parse(localCache));
+                    } catch (err) {
+                        console.error("Lỗi đọc cache cũ:", err);
+                    }
+                }
+            }
+
+            // Tiến hành làm mới database để nạp dữ liệu từ file Excel mới
+            bigClassesDatabase = {};
 
             let totalSheets = sheetsToProcess.length;
             let currentSheetIdx = 0;
@@ -599,12 +613,10 @@ function startProcessingExcel(input) {
                             cleanPhone = "0" + cleanPhone;
                         }
 
-                        // Bỏ qua các dòng tiêu đề hoặc ô trống
                         if (cellB === "" || cellB_lower === "tên học sinh" || cellB_lower === "tên hs" || cellB_lower === "họ và tên") {
                             return;
                         }
 
-                        // Nhận diện dòng lịch học
                         const isSchedule = /^t[2-7]/i.test(cellB) || /^cn/i.test(cellB) || /18h|19h|20h/i.test(cellB) || cellB.includes("THỨ");
 
                         if (isSchedule) {
@@ -616,9 +628,7 @@ function startProcessingExcel(input) {
                             return;
                         }
 
-                        // Đang trong vùng đọc học viên
                         if (readingStudents) {
-                            // Trường hợp là học sinh (có tên và SĐT hợp lệ)
                             if (cellB && !/^\d+$/.test(cellB) && cleanPhone.length >= 9 && cleanPhone.length <= 11) {
                                 let currentClassKey = detectedClassName;
                                 if (!bigClassesDatabase[currentClassKey]) {
@@ -629,7 +639,7 @@ function startProcessingExcel(input) {
                                     };
                                 }
 
-                                // Tìm dữ liệu cũ của học sinh (nếu có)
+                                // 🟢 Tìm dữ liệu điểm danh cũ từ bản sao an toàn (oldDatabase)
                                 const oldStudent = findOldStudent(cellB, cleanPhone, oldDatabase);
 
                                 bigClassesDatabase[currentClassKey].students.push({
@@ -639,7 +649,7 @@ function startProcessingExcel(input) {
                                     status: oldStudent?.status || "present",
                                     note: oldStudent?.note || "",
                                     absentTime: oldStudent?.absentTime || "",
-                                    timeSlots: oldStudent?.timeSlots || [],
+                                    timeSlots: oldStudent?.timeSlots || Array(8).fill({ state: 'normal', timestamp: null }),
                                     history: oldStudent?.history || [],
                                     evaluations: oldStudent?.evaluations || {},
                                     lastEditor: oldStudent?.lastEditor || "",
@@ -648,14 +658,12 @@ function startProcessingExcel(input) {
                                 return;
                             }
 
-                            // Trường hợp gặp dòng chữ nhưng không phải học sinh (có thể là tên lớp mới hoặc kết thúc danh sách)
                             if (cellB && cleanPhone.length < 9) {
                                 readingStudents = false;
                                 previousText = cellB;
                                 return;
                             }
                         } else {
-                            // Lưu lại tên tiềm năng nếu chưa bật chế độ đọc học viên
                             if (cellB && cleanPhone.length < 9) {
                                 previousText = cellB;
                             }
@@ -675,7 +683,6 @@ function startProcessingExcel(input) {
     };
     reader.readAsArrayBuffer(file);
 }
-
 
 
 
