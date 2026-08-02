@@ -885,10 +885,14 @@ function renderAbsentRowsHtml(classKey, students) {
     if (absentStudents.length === 0) return '<li><em>Chưa có học sinh vắng</em></li>';
     
     return absentStudents.map(s => {
+        // 🟢 Kiểm tra nếu học sinh có tích chọn có phép
+        const excusedBadge = s.isExcused ? '<span style="color: #ffd700; font-weight: bold;"></span> ' : '';
+        const displayReason = s.reason || s.note || 'Chưa rõ lý do';
+
         return `
         <li class="absent-row">
             <div class="absent-info">
-                • ${s.name}  (${s.reason || 'Chưa rõ lý do'})
+                • ${s.name} ${excusedBadge} (${displayReason})
             </div>
             <button class="btn-da-den" onclick="updateStudentStatusByUniqueKey('${classKey}', '${s.uniqueKey}', 'present')">Đã đến</button>
         </li>`;
@@ -957,7 +961,15 @@ function renderStudentCardsHtml(classKey, students) {
                         <div class="meta-top-row">
                             <span class="student-name">${idx + 1}. ${student.name}</span>
                             <span class="student-phone" >SĐT: ${student.phone && student.phone !== 'Chưa có' ? student.phone.substring(0, 4) + ' *** ' + student.phone.substring(7) : 'Chưa có'}</span>
-                            <button class="btn-quick-absent ${absentActive}" onclick="toggleAbsent('${student.uniqueKey}')">Vắng</button>
+                            
+                          <!-- 🟢 BỔ SUNG Ô CHECKBOX NGHỈ CÓ PHÉP Ở ĐÂY -->
+                            <label style="display: inline-flex; align-items: center; gap: 3px; font-size: 0.75rem; color: #ffd700; cursor: pointer; margin-left: 5px;">
+                                <input type="checkbox" ${student.isExcused ? 'checked' : ''} onchange="toggleExcusedStatus('${classKey}', ${student.id}, this.checked)" style="transform: scale(1.1); cursor: pointer;">
+                                Có phép
+                            </label>
+
+
+                          <button class="btn-quick-absent ${absentActive}" onclick="toggleAbsent('${student.uniqueKey}')">Vắng</button>
                         </div>
                     </div>
                     
@@ -1550,8 +1562,25 @@ function updateClassFullStatus(classKey, isChecked) {
     saveDatabaseState();
 }
 
-
-
+// Hàm lưu trạng thái nghỉ có phép của học sinh
+// Hàm lưu trạng thái nghỉ có phép của học sinh
+function toggleExcusedStatus(classKey, studentId, isChecked) {
+    if (!bigClassesDatabase[classKey]) return;
+    let student = bigClassesDatabase[classKey].students.find(s => s.id === studentId);
+    if (student) {
+        student.isExcused = isChecked;
+        
+        // Nếu tích có phép, gán ghi chú kèm theo thẻ HTML đổi màu (ví dụ màu vàng #ffd700)
+        if (isChecked) {
+            student.note = '<span style="color: #ffd700; font-weight: bold;">---Nghỉ có phép---</span>';
+        } else if (student.note && student.note.includes('Nghỉ có phép')) {
+            student.note = "";
+        }
+        
+        saveDatabaseState();
+        refreshClassUI(classKey);
+    }
+}
 
 </script>
 
