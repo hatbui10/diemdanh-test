@@ -798,34 +798,19 @@ function renderFullSystemUI() {
             const classObj = cls.data;
             const students = classObj.students;
 
-            // === DÁN BIẾN KIỂM TRA VẮNG VÀO ĐÂY ===
-        const hasAbsentStudents = students.some(s => s.status === 'absent');
+           // Kiểm tra số lượng học sinh đang có trạng thái vắng thực tế trong danh sách
+const absentStudents = students.filter(s => s.status === 'absent');
+const hasAbsentStudents = absentStudents.length > 0;
+
+// Khai báo biến htmlCheckbox cho nút ĐỦ của lớp
+const htmlCheckbox = `
+    <label style="flex: 1; display: flex; align-items: center; justify-content: center; background: #293681; border: 2px solid #bfff00; border-radius: 20px; padding: 8px 10px; ${hasAbsentStudents ? 'opacity: 0.4; cursor: not-allowed;' : 'cursor: pointer;'}; box-shadow: 0 0 10px rgba(144, 184, 0, 0.4);">
+        <input type="checkbox" id="checkbox-full-${classKey.replace(/\s+/g, '-')}" ${classObj.isFull ? 'checked' : ''} ${hasAbsentStudents ? 'disabled' : ''} onchange="updateClassFullStatus('${classKey}', this.checked)" style="transform: scale(1.3); margin-right: 8px; ${hasAbsentStudents ? 'cursor: not-allowed;' : 'cursor: pointer;'};">
+        <span style="color: #ffffff; font-weight: bold; font-size: 0.85rem; text-transform: uppercase;">ĐỦ</span>
+    </label>
+`;
 
 
-// 2. Khai báo biến htmlCheckbox ngay trên đoạn classSection.innerHTML
-        const htmlCheckbox = `
-            <label style="flex: 1; display: flex; align-items: center; justify-content: center; background: #293681; border: 2px solid #bfff00; border-radius: 20px; padding: 8px 10px; ${hasAbsentStudents ? 'opacity: 0.4; cursor: not-allowed;' : 'cursor: pointer;'}; box-shadow: 0 0 10px rgba(144, 184, 0, 0.4);">
-                <input type="checkbox" id="checkbox-full-${classKey.replace(/\s+/g, '-')}" ${classObj.isFull ? 'checked' : ''} ${hasAbsentStudents ? 'disabled' : ''} onchange="updateClassFullStatus('${classKey}', this.checked)" style="transform: scale(1.3); margin-right: 8px; ${hasAbsentStudents ? 'cursor: not-allowed;' : 'cursor: pointer;'};">
-                <span style="color: #ffffff; font-weight: bold; font-size: 0.85rem; text-transform: uppercase;">ĐỦ</span>
-            </label>
-        `;
-
-
-// Cập nhật trạng thái cho checkbox/nút Đủ
-const fullCheckbox = document.getElementById('id-nut-du'); // Thay bằng id hoặc selector thực tế của nút Đủ
-if (fullCheckbox) {
-    fullCheckbox.checked = !hasAbsentStudents; // Nếu có học sinh vắng thì bỏ tích Đủ
-    fullCheckbox.disabled = hasAbsentStudents;  // Nếu có học sinh vắng thì khóa không cho bấm
-    
-    // Tùy chỉnh thêm CSS giao diện mờ đi khi bị disable
-    if (hasAbsentStudents) {
-        fullCheckbox.parentElement.style.opacity = '0.4';
-        fullCheckbox.parentElement.style.cursor = 'not-allowed';
-    } else {
-        fullCheckbox.parentElement.style.opacity = '1';
-        fullCheckbox.parentElement.style.cursor = 'pointer';
-    }
-}
 
 
 
@@ -1009,7 +994,7 @@ function updateStudentStatusByUniqueKey(classKey, uniqueKey, status) {
         student.status = status;
         student.absentTime = "";
         saveDatabaseState();
-        refreshClassUI(classKey);
+        refreshClassUI(classKey); // Gọi hàm refresh đã được bổ sung logic cập nhật nút ĐỦ ở Bước 1
     }
 }
 
@@ -1097,6 +1082,7 @@ function updateStudentStatus(classKey, studentId, status) {
 }
 
 // Hàm phụ trợ giúp vẽ lại giao diện lớp nhanh gọn tránh lặp code
+// Hàm phụ trợ giúp vẽ lại giao diện lớp nhanh gọn tránh lặp code
 function refreshClassUI(classKey) {
     const classKeyId = classKey.replace(/\s+/g, '-');
     const studentsArr = bigClassesDatabase[classKey].students;
@@ -1106,10 +1092,33 @@ function refreshClassUI(classKey) {
     const present = total - absent;
     
     document.getElementById(`stats-${classKeyId}`).innerText = 'Sĩ số: ' + total + ' | Có mặt: ' + present + ' | Vắng: ' + absent;
-   document.getElementById(`absentList-${classKeyId}`).innerHTML = renderAbsentRowsHtml(classKey, studentsArr);
+    document.getElementById(`absentList-${classKeyId}`).innerHTML = renderAbsentRowsHtml(classKey, studentsArr);
     document.getElementById(`studentList-${classKeyId}`).innerHTML = renderStudentCardsHtml(classKey, studentsArr);
-}
 
+    // 🟢 BỔ SUNG: Cập nhật lại trạng thái mờ/khóa và checked của nút ĐỦ ngay khi sĩ số vắng thay đổi
+    const hasAbsentStudents = absent > 0;
+    const checkboxEl = document.getElementById(`checkbox-full-${classKeyId}`);
+    
+    if (checkboxEl) {
+        // Nếu có học sinh vắng thì tự động bỏ tích và khóa nút
+        if (hasAbsentStudents) {
+            checkboxEl.checked = false;
+            checkboxEl.disabled = true;
+            checkboxEl.parentElement.style.opacity = '0.4';
+            checkboxEl.parentElement.style.cursor = 'not-allowed';
+            checkboxEl.style.cursor = 'not-allowed';
+            // Cập nhật lại vào dữ liệu cấu trúc của lớp
+            bigClassesDatabase[classKey].isFull = false;
+        } else {
+            checkboxEl.disabled = false;
+            checkboxEl.parentElement.style.opacity = '1';
+            checkboxEl.parentElement.style.cursor = 'pointer';
+            checkboxEl.style.cursor = 'pointer';
+        }
+        // Lưu lại trạng thái cập nhật mới
+        saveDatabaseState();
+    }
+}
 
 
 
@@ -1511,17 +1520,14 @@ async function confirmResetTimeSlots() {
 });
 
 
-// Hàm lưu trạng thái Checkbox "Đủ" và đồng bộ lên Firebase/LocalStorage
 function updateClassFullStatus(classKey, isChecked) {
     if (!bigClassesDatabase[classKey]) return;
     
     // Cập nhật trạng thái vào object dữ liệu của lớp
     bigClassesDatabase[classKey].isFull = isChecked;
     
-    // Lưu lại vào LocalStorage và đẩy lên Firebase để máy khác cập nhật theo
+    // Lưu lại vào LocalStorage và đẩy lên Firebase
     saveDatabaseState();
-    
-    console.log(`Lớp ${classKey} đã đổi trạng thái Đủ thành: ${isChecked}`);
 }
 
 
