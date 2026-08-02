@@ -824,7 +824,13 @@ const htmlCheckbox = `
 
             classSection.innerHTML = `
                 <div class="class-accordion-header" onclick="toggleClassAccordion(this)">
-                    <div class="class-main-title">${classKey}</div>
+                    <div>
+                            <span class="class-main-title">${classKey}</span>
+                            <!-- 🟢 Thêm thẻ hiển thị chữ ĐỦ ở đây -->
+                            <span id="label-full-text-${classKey.replace(/\s+/g, '-')}" style="margin-left: 10px; color: #bfff00; font-weight: bold; font-size: 0.9rem; text-transform: uppercase; ${classObj.isFull ? 'display: inline;' : 'display: none;'}"> [--Lớp đi học ĐỦ--]</span>
+                        </div>
+
+
                     <div class="class-schedule">${classObj.schedule || ""}</div>
                     <div class="class-stats" id="stats-${classKey.replace(/\s+/g, '-')}">Sĩ số: ${total} | Có mặt: ${present} | Vắng: ${absent}</div>
                 </div>
@@ -1115,9 +1121,16 @@ function refreshClassUI(classKey) {
             checkboxEl.parentElement.style.cursor = 'pointer';
             checkboxEl.style.cursor = 'pointer';
         }
+
+}
+// 🟢 Đồng bộ hiển thị chữ ĐỦ trên tiêu đề dựa theo dữ liệu thực tế
+    const labelTextEl = document.getElementById(`label-full-text-${classKeyId}`);
+    if (labelTextEl) {
+        labelTextEl.style.display = bigClassesDatabase[classKey].isFull ? 'inline' : 'none';
+    }
         // Lưu lại trạng thái cập nhật mới
         saveDatabaseState();
-    }
+    
 }
 
 
@@ -1525,6 +1538,13 @@ function updateClassFullStatus(classKey, isChecked) {
     
     // Cập nhật trạng thái vào object dữ liệu của lớp
     bigClassesDatabase[classKey].isFull = isChecked;
+    
+    // 🟢 Hiển thị hoặc ẩn chữ ĐỦ ở tiêu đề ngay lập tức
+    const classKeyId = classKey.replace(/\s+/g, '-');
+    const labelTextEl = document.getElementById(`label-full-text-${classKeyId}`);
+    if (labelTextEl) {
+        labelTextEl.style.display = isChecked ? 'inline' : 'none';
+    }
     
     // Lưu lại vào LocalStorage và đẩy lên Firebase
     saveDatabaseState();
