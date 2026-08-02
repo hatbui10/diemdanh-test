@@ -858,7 +858,7 @@ function renderAbsentRowsHtml(classKey, students) {
             <div class="absent-info">
                 • ${s.name}  (${s.reason || 'Chưa rõ lý do'})
             </div>
-            <button class="btn-da-den" onclick="updateStudentStatus('${classKey}', ${s.id}, 'present')">Đã đến</button>
+            <button class="btn-da-den" onclick="updateStudentStatusByUniqueKey('${classKey}', '${s.uniqueKey}', 'present')">Đã đến</button>
         </li>`;
     }).join('');
 }
@@ -961,7 +961,16 @@ function renderStudentCardsHtml(classKey, students) {
 }
 
 
-
+function updateStudentStatusByUniqueKey(classKey, uniqueKey, status) {
+    if (!bigClassesDatabase[classKey]) return;
+    let student = bigClassesDatabase[classKey].students.find(s => s.uniqueKey === uniqueKey);
+    if (student) {
+        student.status = status;
+        student.absentTime = "";
+        saveDatabaseState();
+        refreshClassUI(classKey);
+    }
+}
 
 
 
