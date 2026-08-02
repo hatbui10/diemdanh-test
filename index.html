@@ -824,11 +824,14 @@ const htmlCheckbox = `
 
             classSection.innerHTML = `
                 <div class="class-accordion-header" onclick="toggleClassAccordion(this)">
-                    <div>
-                            <span class="class-main-title">${classKey}</span>
-                            <!-- 🟢 Thêm thẻ hiển thị chữ ĐỦ ở đây -->
-                            <span id="label-full-text-${classKey.replace(/\s+/g, '-')}" style="margin-left: 10px; color: #bfff00; font-weight: bold; font-size: 0.9rem; text-transform: uppercase; ${classObj.isFull ? 'display: inline;' : 'display: none;'}"> [--Lớp đi học ĐỦ--]</span>
-                        </div>
+                   <div>
+            <span class="class-main-title">${classKey}</span>
+            <!-- 🟢 Thêm thẻ hiển thị chữ ĐỦ -->
+            <span id="label-full-text-${classKey.replace(/\s+/g, '-')}" style="margin-left: 10px; color: #bfff00; font-weight: bold; font-size: 0.9rem; text-transform: uppercase; ${classObj.isFull ? 'display: inline;' : 'display: none;'}"> [--Lớp đi học ĐỦ--]</span>
+            
+            <!-- 🟢 THÊM THẺ NÀY: Hiển thị thông báo có học sinh mới -->
+            <span id="label-new-student-${classKey.replace(/\s+/g, '-')}" style="margin-left: 10px; color: #ffd700; font-weight: bold; font-size: 0.9rem; text-transform: uppercase; ${classObj.hasNewStudent ? 'display: inline;' : 'display: none;'}"> [--Có học sinh mới--]</span>
+        </div>
 
 
                     <div class="class-schedule">${classObj.schedule || ""}</div>
@@ -1140,6 +1143,13 @@ function refreshClassUI(classKey) {
     if (labelTextEl) {
         labelTextEl.style.display = bigClassesDatabase[classKey].isFull ? 'inline' : 'none';
     }
+
+
+// 🟢 CẬP NHẬT HIỂN THỊ CHỮ CÓ HỌC SINH MỚI
+    const labelNewStudentEl = document.getElementById(`label-new-student-${classKeyId}`);
+    if (labelNewStudentEl) {
+        labelNewStudentEl.style.display = bigClassesDatabase[classKey].hasNewStudent ? 'inline' : 'none';
+    }
         // Lưu lại trạng thái cập nhật mới
         saveDatabaseState();
     
@@ -1199,11 +1209,13 @@ function addNewStudentToClass(classKey) {
         id: nextId, 
         name: name, 
         phone: phone, 
-       status: 'absent', 
+       status: 'new', 
         note: 'học sinh mới ',
         timeSlots: Array(8).fill({ state: 'normal', timestamp: null })
     });
-    
+
+    // 🟢 Bật cờ đánh dấu lớp có học sinh mới
+    bigClassesDatabase[classKey].hasNewStudent = true;
     saveDatabaseState();
     
     // Reset ô input và cập nhật lại giao diện hiển thị của lớp
