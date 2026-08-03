@@ -960,21 +960,24 @@ function renderStudentCardsHtml(classKey, students) {
         return `
             <div class="student-card status-${student.status}" id="${cardId}">
                 <div class="student-info-row">
-                    <div class="student-meta">
-                        <div class="meta-top-row">
-                            <span class="student-name">${idx + 1}. ${student.name}</span>
-                            <span class="student-phone" >SĐT: ${student.phone && student.phone !== 'Chưa có' ? student.phone.substring(0, 4) + ' *** ' + student.phone.substring(7) : 'Chưa có'}</span>
-                            
-                         <!-- 🟢 SỬ DỤNG uniqueKey THAY CHO student.id ĐỂ TRÁNH LỆCH -->
-                            <label style="display: inline-flex; align-items: center; gap: 3px; font-size: 0.75rem; color: #ffd700; cursor: pointer; margin-left: 5px;">
-                                <input type="checkbox" ${student.isExcused ? 'checked' : ''} onchange="toggleExcusedStatus('${classKey}', '${student.uniqueKey}', this.checked)" style="transform: scale(1.1); cursor: pointer;">
-                                Có phép
-                            </label>
+                    <div class="student-meta" style="display: flex; flex-direction: column; gap: 6px;">
+    <!-- DÒNG TRÊN: Tên và Số điện thoại -->
+    <div class="meta-top-row" style="display: flex; justify-content: space-between; align-items: center;">
+        <span class="student-name">${idx + 1}. ${student.name}</span>
+        <span class="student-phone">SĐT: ${student.phone && student.phone !== 'Chưa có' ? student.phone.substring(0, 4) + ' *** ' + student.phone.substring(7) : 'Chưa có'}</span>
+    </div>
 
+    <!-- DÒNG DƯỚI: Nút Có phép và Vắng rớt xuống dưới -->
+    <div class="meta-bottom-row" style="display: flex; align-items: center; gap: 10px;">
+        <!-- 🟢 SỬ DỤNG uniqueKey THAY CHO student.id ĐỂ TRÁNH LỆCH -->
+        <label style="display: inline-flex; align-items: center; gap: 3px; font-size: 0.75rem; color: #ffd700; cursor: pointer;">
+            <input type="checkbox" ${student.isExcused ? 'checked' : ''} onchange="toggleExcusedStatus('${classKey}', '${student.uniqueKey}', this.checked)" style="transform: scale(1.1); cursor: pointer;">
+            Có phép
+        </label>
 
-                          <button class="btn-quick-absent ${absentActive}" onclick="toggleAbsent('${student.uniqueKey}')">Vắng</button>
-                        </div>
-                    </div>
+        <button class="btn-quick-absent ${absentActive}" onclick="toggleAbsent('${student.uniqueKey}')">Vắng</button>
+    </div>
+</div>
                     
                     <div class="student-actions-right">
                         <button class="btn-call" onclick="callPhoneAction('${student.phone}')">📞</button>
