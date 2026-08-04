@@ -9,16 +9,15 @@
 
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: #050508; color: #e0e0e6; padding: 20px 8px; max-width: 600px; margin: 0 auto; }
+        body { background-color: #266210; color: #e0e0e6; padding: 20px 8px; max-width: 600px; margin: 0 auto; }
         
         h2 { text-align: center; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px; color: #00f0ff; text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); font-size: 1.4rem; }
         h3 { color: #ff007f; text-shadow: 0 0 10px rgba(255, 0, 127, 0.5); font-size: 1.1rem; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
         
         /* 👑 THANH CHỌN QUYỀN HỆ THỐNG */
-        .role-selector-bar { background: #121224; border: 1px solid #00f0ff; border-radius: 6px; padding: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 0 10px rgba(0, 240, 255, 0.2); }
-        .role-selector-bar span { font-size: 0.85rem; font-weight: bold; color: #00f0ff; }
-        .role-selector-bar select { background: #050508; color: #ffd700; border: 1px solid #ffd700; padding: 6px 12px; font-weight: bold; font-size: 0.85rem; border-radius: 4px; outline: none; cursor: pointer; }
-
+.role-selector-bar { background: #121224; border: 1px solid #00f0ff; border-radius: 50px; padding: 10px 35px; margin-bottom: 0; display: flex; justify-content: space-between; align-items: center; gap: 15px; box-shadow: 0 0 15px rgba(0, 240, 255, 0.3); }
+.role-selector-bar span { font-size: 0.9rem; font-weight: bold; color: #00f0ff; white-space: nowrap; }
+.role-selector-bar select { background: #050508; color: #ffd700; border: 1px solid #ffd700; padding: 8px 20px; font-weight: bold; font-size: 0.9rem; border-radius: 20px; outline: none; cursor: pointer; }
         /* 🛡️ LOGIC PHÂN QUYỀN MỚI THEO YÊU CẦU */
         
         /* 1. KHÁCH: Khóa toàn bộ nút, chỉ được xem */
@@ -44,7 +43,7 @@
 body.role-teacher .upload-card,
 body.role-teacher .btn-call,
 body.role-teacher .btn-delete,
-body.role-teacher .copy-btn,
+
 body.role-teacher .student-controls-row .btn-present,
 /* Ẩn các ô điểm danh thời gian thực (time-slots-row) đối với tài khoản Giáo Viên */
 body.role-teacher .time-slots-row {
@@ -361,19 +360,116 @@ margin-right: 20px; /* Thêm dòng này để cách mép phải 20px */
     transition: all .3s ease;
 }
 
+@keyframes rainbowFireGlow {
+  0% {
+    background-position: 0% 50%;
+    box-shadow: 0 0 15px #ffb703, 0 0 25px #fb8500, inset 0 0 10px rgba(255, 255, 255, 0.6);
+  }
+  33% {
+    background-position: 50% 50%;
+    box-shadow: 0 0 20px #ff0054, 0 0 35px #ff5400, inset 0 0 15px rgba(255, 255, 255, 0.8);
+  }
+  66% {
+    background-position: 100% 50%;
+    box-shadow: 0 0 20px #00f5d4, 0 0 35px #7209b7, inset 0 0 15px rgba(255, 255, 255, 0.8);
+  }
+  100% {
+    background-position: 0% 50%;
+    box-shadow: 0 0 15px #ffb703, 0 0 25px #fb8500, inset 0 0 10px rgba(255, 255, 255, 0.6);
+  }
+}
+
+@keyframes sparkleRotate {
+  0% { transform: rotate(0deg) scale(1); filter: drop-shadow(0 0 2px #fff); }
+  50% { transform: rotate(180deg) scale(1.25); filter: drop-shadow(0 0 10px #ffea00); }
+  100% { transform: rotate(360deg) scale(1); filter: drop-shadow(0 0 2px #fff); }
+}
+
+.sparkle-reload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 22px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  /* Dải màu nền chạy liên tục chuyển đổi giữa Vàng, Cam, Hồng và Cầu Vồng */
+  background: linear-gradient(270deg, #ffb703, #fb8500, #ff0054, #7209b7, #3a86ff, #ffb703);
+  background-size: 500% 500%;
+  border: 2px solid #ffea00;
+  border-radius: 50px;
+  cursor: pointer;
+  /* Kích hoạt hiệu ứng phát sáng cầu vồng liên tục */
+  animation: rainbowFireGlow 3s ease infinite;
+  transition: all 0.3s ease;
+  margin: 10px 0;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+/* Hiệu ứng khi rê chuột vào */
+.sparkle-reload-btn:hover {
+  transform: scale(1.06) translateY(-2px);
+  animation: rainbowFireGlow 1.2s ease infinite; /* Chạy cực nhanh và rực rỡ hơn khi hover */
+  border-color: #ffffff;
+}
+
+/* Icon xoay lấp lánh */
+.sparkle-reload-btn:hover .icon {
+  animation: sparkleRotate 0.7s linear infinite;
+}
+
+.sparkle-reload-btn .icon {
+  font-size: 18px;
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.sparkle-reload-btn:active {
+  transform: scale(0.98) translateY(1px);
+}
+
+
+/* Khung bọc ngang chứa cả thanh chọn quyền và nút tải lại */
+.top-header-bar {
+  display: flex;
+  justify-content: space-between; /* Đẩy 2 phần tử sang 2 bên (Trái - Phải) */
+  align-items: center;            /* Căn giữa theo chiều dọc */
+  flex-wrap: wrap;                /* Tự động xuống dòng nếu màn hình quá nhỏ (trên điện thoại) */
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+/* Xóa khoảng cách margin mặc định của thanh chọn quyền nếu có */
+.role-selector-bar {
+  margin: 0 !important;
+}
+
+/* Tinh chỉnh lại một chút cho nút tải lại khi nằm trên hàng ngang */
+.sparkle-reload-btn {
+  margin: 0 !important;
+  padding: 8px 16px;
+  font-size: 14px;
+}
 
 </style>
 </head>
 <body class="role-teacher">
 
-<!-- 👑 THANH CHỌN QUYỀN HỆ THỐNG -->
-<div class="role-selector-bar">
-   <span>👑 Chế độ xem:</span>
-    <select id="userRoleSelect" onchange="switchUserRole(this.value)">
-        <option value="guest">Khách</option>
-        <option value="teacher" selected>Giáo Viên</option>
-        <option value="assistant">Trợ Giảng</option>
-    </select>
+<!-- 👑 THANH CHỌN QUYỀN HỆ THỐNG VÀ NÚT TẢI LẠI CÙNG 1 HÀNG -->
+<div class="top-header-bar">
+    <div class="role-selector-bar">
+        <span>👑 Chế độ xem:</span>
+        <select id="userRoleSelect" onchange="switchUserRole(this.value)">
+            <option value="guest">Khách</option>
+            <option value="teacher" selected>Giáo Viên</option>
+            <option value="assistant">Trợ Giảng</option>
+        </select>
+    </div>
+
+    <button class="sparkle-reload-btn" onclick="location.reload()">
+      <span class="icon">&#x21BB;</span> 
+      <span class="text">Tải lại trang web</span>
+    </button>
 </div>
 
 <h2>HỆ THỐNG QUẢN LÝ ĐIỂM DANH ĐỘNG</h2>
@@ -413,6 +509,11 @@ margin-right: 20px; /* Thêm dòng này để cách mép phải 20px */
     <div class="progress-bar" id="progressBar">0%</div>
 </div>
 
+
+
+
+
+	
 <div class="search-box">
     <input type="text" id="globalSearchInput" class="search-input" placeholder="Nhập tên hoặc số điện thoại để tìm nhanh..." onkeypress="handleSearchKeyPress(event)">
     <button class="search-btn" onclick="searchGlobalStudent()">Tìm Kiếm</button>
@@ -1212,7 +1313,7 @@ function addNewStudentToClass(classKey) {
         id: nextId, 
         name: name, 
         phone: phone, 
-       status: 'new', 
+       status: 'absent', // <--- Đổi thành 'absent' để nằm trong danh sách vắng
         note: 'học sinh mới ',
         timeSlots: Array(8).fill({ state: 'normal', timestamp: null })
     });
@@ -1598,6 +1699,14 @@ function toggleExcusedStatus(classKey, uniqueKey, isChecked) {
     }
 }
 
+
+	function resetWebsiteData() {
+    localStorage.clear();
+    sessionStorage.clear();
+    location.reload();
+	}
+
+	
 </script>
 
 <script type="module">
@@ -1605,13 +1714,13 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebas
 import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCsMmRQ7qPD8Vh2GF10RtOxBSCJeu1XB3g",
-  authDomain: "diemdanh-test.firebaseapp.com",
-  projectId: "diemdanh-test",
-  storageBucket: "diemdanh-test.firebasestorage.app",
-  messagingSenderId: "597983373263",
-  appId: "1:597983373263:web:2a353cad3878390b5594ba",
-  measurementId: "G-J7SVE1EYPZ"
+  apiKey: "AIzaSyCwihbLJUIPmEpzbNgKxYCUs1AcX4SG42w",
+  authDomain: "diemdanhgv-d6a9b.firebaseapp.com",
+  projectId: "diemdanhgv-d6a9b",
+  storageBucket: "diemdanhgv-d6a9b.firebasestorage.app",
+  messagingSenderId: "530760774311",
+  appId: "1:530760774311:web:99a4273d0a1defd67f2182",
+  measurementId: "G-16C79QHVQJ"
 };
 
 const app = initializeApp(firebaseConfig);
