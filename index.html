@@ -567,24 +567,27 @@ function displayPhone(p) {
     return p; 
 }
 
+
+
+
+
 window.onload = async function () {
-    try {
-        // Cố gắng tải dữ liệu mới nhất từ Firebase trước
-        await window.loadFromFirebase();
-    } catch (e) {
-        console.warn("Không thể tải từ Firebase, đang sử dụng dữ liệu từ LocalStorage...", e);
-        
-        // Nếu lỗi kết nối/tải, fallback về dữ liệu lưu cục bộ
-        const cachedData = localStorage.getItem("big_classes_database");
-        if (cachedData) {
+    // 1. Hiển thị ngay lập tức dữ liệu đang lưu trong bộ nhớ trình duyệt để không bị mất thông tin
+    const cachedData = localStorage.getItem("big_classes_database");
+    if (cachedData) {
+        try {
             bigClassesDatabase = JSON.parse(cachedData);
             renderFullSystemUI();
-            
-            
-            
-        } else {
-            console.error("Không tìm thấy dữ liệu cục bộ.");
+        } catch (err) {
+            console.error("Lỗi phân tích LocalStorage:", err);
         }
+    }
+
+    // 2. Sau đó mới gọi đồng bộ ngầm với Firebase
+    try {
+        await window.loadFromFirebase();
+    } catch (e) {
+        console.warn("Không thể đồng bộ từ Firebase, tiếp tục dùng dữ liệu LocalStorage.", e);
     }
 };
 
@@ -729,14 +732,15 @@ function startProcessingExcel(input) {
                                 let currentClassKey = detectedClassName;
 
 
-                               if (!bigClassesDatabase[currentClassKey]) {
-                                 bigClassesDatabase[currentClassKey] = {
-                                     sheet: sheetName,
-                                     schedule: detectedSchedule,
-                                     isFull: false, // <--- Thêm dòng này để lưu trạng thái checkbox
-                                     students: []
-                                 };
-                             }
+                            if (!bigClassesDatabase[currentClassKey]) {
+        bigClassesDatabase[currentClassKey] = {
+            sheet: sheetName,
+            schedule: detectedSchedule,
+            isFull: false, // Trạng thái checkbox ĐỦ
+            lastTime: "",  // Thêm dòng này để lưu thời gian thao tác cuối của lớp
+            students: []
+        };
+    }
 
                                 // 🟢 Tìm dữ liệu điểm danh cũ từ bản sao an toàn (oldDatabase)
                                 const oldStudent = findOldStudent(cellB, cleanPhone, oldDatabase);
@@ -931,12 +935,19 @@ const htmlCheckbox = `
             <span id="label-full-text-${classKey.replace(/\s+/g, '-')}" style="margin-left: 10px; color: #bfff00; font-weight: bold; font-size: 0.9rem; text-transform: uppercase; ${classObj.isFull ? 'display: inline;' : 'display: none;'}"> [--Lớp đi học ĐỦ--]</span>
             
             <!-- 🟢 THÊM THẺ NÀY: Hiển thị thông báo có học sinh mới -->
-            <span id="label-new-student-${classKey.replace(/\s+/g, '-')}" style="margin-left: 10px; color: #ffd700; font-weight: bold; font-size: 0.9rem; text-transform: uppercase; ${classObj.hasNewStudent ? 'display: inline;' : 'display: none;'}"> [--Có học sinh mới--]</span>
+            <span id="label-new-student-${classKey.replace(/\s+/g, '-')}" style="margin-left: 40px; color: #ffd700; font-weight: bold; font-size: 0.9rem; text-transform: uppercase; ${classObj.hasNewStudent ? 'display: inline;' : 'display: none;'}"> [--Có học sinh mới--]</span>
         </div>
 
 
                     <div class="class-schedule">${classObj.schedule || ""}</div>
-                    <div class="class-stats" id="stats-${classKey.replace(/\s+/g, '-')}">Sĩ số: ${total} | Có mặt: ${present} | Vắng: ${absent}</div>
+                    <!-- 🕒 Hiển thị thống kê có mặt, vắng và thời gian cập nhật cuối cùng -->
+   <div class="class-stats" id="stats-${classKey.replace(/\s+/g, '-')}">
+    <span style="color: #007DCC;">Có mặt: ${students.length - students.filter(s => s.status === 'absent').length}</span> 
+    ----- 
+    <span style="color: #007DCC;">Vắng: ${students.filter(s => s.status === 'absent').length}</span> 
+    <br>
+    🕒 Cập nhật lần cuối :    ${bigClassesDatabase[classKey].lastUpdateTime || 'Chưa cập nhật'}
+</div>
                 </div>
                 
                 <div class="class-panel">
@@ -958,19 +969,23 @@ const htmlCheckbox = `
 </div>
 
                     <div class="absent-section">
-                        <div class="absent-header">
-                            <span class="absent-title">DANH SÁCH VẮNG HÔM NAY</span>
-                            <button class="copy-btn" onclick="copyAbsentReport('${classKey}')">Copy</button>
-                        </div>
-                        <ul class="absent-list" id="absentList-${classKey.replace(/\s+/g, '-')}">
-                             ${renderAbsentRowsHtml(classKey, students)}
-                        </ul>
+    
 
-                    </div>
-                    
-                    <div class="student-list" id="studentList-${classKey.replace(/\s+/g, '-')}">
-                        ${renderStudentCardsHtml(classKey, students)}
-                    </div>
+    <div class="absent-header">
+        <span class="absent-title">DANH SÁCH VẮNG HÔM NAY</span>
+        <button class="copy-btn" onclick="copyAbsentReport('${classKey}')">Copy</button>
+    </div>
+    <ul class="absent-list" id="absentList-${classKey.replace(/\s+/g, '-')}">
+        ${renderAbsentRowsHtml(classKey, students)}
+    </ul>
+</div>
+
+<div class="student-list" id="studentList-${classKey.replace(/\s+/g, '-')}">
+    ${renderStudentCardsHtml(classKey, students)}
+</div>
+
+
+
                 </div>
             `;
             groupPanel.appendChild(classSection);
@@ -1128,11 +1143,15 @@ function updateStudentStatusByUniqueKey(classKey, uniqueKey, status) {
 
 // LOGIC MỚI: Ấn lần 1 đưa vào danh sách vắng, ấn lần 2 xóa khỏi danh sách vắng (về lại đi học)[cite: 2]
 // LOGIC CẬP NHẬT KHI BẤM VẮNG / ĐIỂM DANH ĐỂ TỰ ĐỘNG BẬT Ô VÀNG TIẾP THEO
-function toggleAbsentStatus(classKey, studentId) {
+async function toggleAbsentStatus(classKey, studentId) {
     let student = bigClassesDatabase[classKey].students.find(s => s.id === studentId);
     if (student) {
         if (!student.timeSlots) student.timeSlots = Array(8).fill({ state: 'normal', timestamp: null });
         let now = Date.now();
+
+        // Tạo sẵn chuỗi thời gian thao tác để lưu vào thời gian cuối của lớp
+        let nowStr = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        bigClassesDatabase[classKey].lastTime = nowStr;
 
         // Tìm ô màu vàng đang active gần nhất hoặc ô trống đầu tiên
         let yellowIdx = student.timeSlots.findIndex(slot => slot.state === 'yellow' && slot.timestamp && (now - slot.timestamp) / (1000 * 60) <= 30);
@@ -1153,8 +1172,7 @@ function toggleAbsentStatus(classKey, studentId) {
                     let nextEmptyIdx = student.timeSlots.findIndex(s => s.state === 'normal');
                     if (nextEmptyIdx !== -1) {
                         student.timeSlots[nextEmptyIdx] = { state: 'yellow', timestamp: now };
-                        let timeStr = new Date();
-                        student.absentTime = timeStr.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                        student.absentTime = nowStr;
                     }
                 }
             } else {
@@ -1165,8 +1183,7 @@ function toggleAbsentStatus(classKey, studentId) {
         } else {
             // Đang đi học, bấm vắng lần 1 -> Bật màu vàng ở ô trống đầu tiên
             student.status = 'absent';
-            let timeStr = new Date();
-            student.absentTime = timeStr.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            student.absentTime = nowStr;
             
             let nextEmptyIndex = student.timeSlots.findIndex(slot => slot.state === 'normal');
             if (nextEmptyIndex !== -1) {
@@ -1174,12 +1191,16 @@ function toggleAbsentStatus(classKey, studentId) {
             }
         }
 
+        // 1. Lưu cục bộ để cập nhật giao diện mượt mà, không giật lag
         saveDatabaseState();
         refreshClassUI(classKey);
+
+        // 2. Tự động đẩy dữ liệu mới nhất lên Firebase thông qua cấu trúc sẵn có của bạn
+        if (typeof window.saveToFirebase === 'function') {
+            await window.saveToFirebase();
+        }
     }
 }
-
-
 
 
 function updateStudentStatus(classKey, studentId, status) {
@@ -1207,7 +1228,6 @@ function updateStudentStatus(classKey, studentId, status) {
 }
 
 // Hàm phụ trợ giúp vẽ lại giao diện lớp nhanh gọn tránh lặp code
-// Hàm phụ trợ giúp vẽ lại giao diện lớp nhanh gọn tránh lặp code
 function refreshClassUI(classKey) {
     const classKeyId = classKey.replace(/\s+/g, '-');
     const studentsArr = bigClassesDatabase[classKey].students;
@@ -1216,7 +1236,18 @@ function refreshClassUI(classKey) {
     const absent = studentsArr.filter(s => s.status === 'absent').length;
     const present = total - absent;
     
-    document.getElementById(`stats-${classKeyId}`).innerText = 'Sĩ số: ' + total + ' | Có mặt: ' + present + ' | Vắng: ' + absent;
+    // 🕒 Lấy thời gian hiện tại gồm cả giờ phút giây và ngày tháng năm
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const dateString = now.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const fullDateTime = `${timeString}     -     ${dateString}`;
+    
+    // Lưu lại thời gian vào database của lớp
+    bigClassesDatabase[classKey].lastUpdateTime = fullDateTime;
+
+    // Cập nhật dòng hiển thị có mặt, vắng và thời gian kèm ngày cuối cùng
+    document.getElementById(`stats-${classKeyId}`).innerText = ' Có mặt: ' + present + ' ----- Vắng: ' + absent + ' ----- 🕒 Cuối: ' + fullDateTime;
+    
     document.getElementById(`absentList-${classKeyId}`).innerHTML = renderAbsentRowsHtml(classKey, studentsArr);
     document.getElementById(`studentList-${classKeyId}`).innerHTML = renderStudentCardsHtml(classKey, studentsArr);
 
@@ -1240,25 +1271,23 @@ function refreshClassUI(classKey) {
             checkboxEl.parentElement.style.cursor = 'pointer';
             checkboxEl.style.cursor = 'pointer';
         }
+    }
 
-}
-// 🟢 Đồng bộ hiển thị chữ ĐỦ trên tiêu đề dựa theo dữ liệu thực tế
+    // 🟢 Đồng bộ hiển thị chữ ĐỦ trên tiêu đề dựa theo dữ liệu thực tế
     const labelTextEl = document.getElementById(`label-full-text-${classKeyId}`);
     if (labelTextEl) {
         labelTextEl.style.display = bigClassesDatabase[classKey].isFull ? 'inline' : 'none';
     }
 
-
-// 🟢 CẬP NHẬT HIỂN THỊ CHỮ CÓ HỌC SINH MỚI
+    // 🟢 CẬP NHẬT HIỂN THỊ CHỮ CÓ HỌC SINH MỚI
     const labelNewStudentEl = document.getElementById(`label-new-student-${classKeyId}`);
     if (labelNewStudentEl) {
         labelNewStudentEl.style.display = bigClassesDatabase[classKey].hasNewStudent ? 'inline' : 'none';
     }
-        // Lưu lại trạng thái cập nhật mới
-        saveDatabaseState();
     
+    // Lưu lại trạng thái cập nhật mới
+    saveDatabaseState();
 }
-
 
 
 
@@ -1345,7 +1374,7 @@ function deleteStudentFromClass(classKey, studentId, studentName) {
         const total = studentsList.length;
         const absent = studentsList.filter(s => s.status === 'absent').length;
         const present = total - absent;
-        document.getElementById(`stats-${classIdStr}`).innerText = 'Sĩ số: ' + total + ' | Có mặt: ' + present + ' | Vắng: ' + absent;
+        document.getElementById(`stats-${classIdStr}`).innerText =  ' Có mặt: ' + present + ' -----    Vắng: ' + absent;
         document.getElementById(`absentList-${classIdStr}`).innerHTML = renderAbsentRowsHtml(studentsList);
         document.getElementById(`studentList-${classIdStr}`).innerHTML = renderStudentCardsHtml(classKey, studentsList);
         
@@ -1360,7 +1389,7 @@ function copyAbsentReport(classKey) {
     const absentCount = absentStudents.length;
     const presentCount = total - absentCount;
     let text = 'LỚP: ' + classKey + '\n';
-    text += 'Sĩ số: ' + total + ' (Có mặt: ' + presentCount + ' | Vắng: ' + absentCount + ')\n-------------------------\nDanh sách vắng:\n';
+    text += ' (Có mặt: ' + presentCount + ' ---- Vắng: ' + absentCount + ')\n-------------------------\nDanh sách vắng:\n';
     if (absentCount === 0) {
         text += '- Lớp đi học đủ.';
     } else {
