@@ -935,16 +935,16 @@ const htmlCheckbox = `
             <span id="label-full-text-${classKey.replace(/\s+/g, '-')}" style="margin-left: 10px; color: #bfff00; font-weight: bold; font-size: 0.9rem; text-transform: uppercase; ${classObj.isFull ? 'display: inline;' : 'display: none;'}"> [--Lớp đi học ĐỦ--]</span>
             
             <!-- 🟢 THÊM THẺ NÀY: Hiển thị thông báo có học sinh mới -->
-            <span id="label-new-student-${classKey.replace(/\s+/g, '-')}" style="margin-left: 40px; color: #ffd700; font-weight: bold; font-size: 0.9rem; text-transform: uppercase; ${classObj.hasNewStudent ? 'display: inline;' : 'display: none;'}"> [--Có học sinh mới--]</span>
+            <span id="label-new-student-${classKey.replace(/\s+/g, '-')}" style="margin-left: 80px; color: #ffd700; font-weight: bold; font-size: 0.9rem; text-transform: uppercase; ${classObj.hasNewStudent ? 'display: inline;' : 'display: none;'}"> [--Có học sinh mới--]</span>
         </div>
 
 
                     <div class="class-schedule">${classObj.schedule || ""}</div>
                     <!-- 🕒 Hiển thị thống kê có mặt, vắng và thời gian cập nhật cuối cùng -->
    <div class="class-stats" id="stats-${classKey.replace(/\s+/g, '-')}">
-    <span style="color: #007DCC;">Có mặt: ${students.length - students.filter(s => s.status === 'absent').length}</span> 
+    <span style="color: #007DCC;font-size: 1.1rem; font-weight: bold;">Có mặt: ${students.length - students.filter(s => s.status === 'absent').length}</span> 
     ----- 
-    <span style="color: #007DCC;">Vắng: ${students.filter(s => s.status === 'absent').length}</span> 
+    <span style="color: #007DCC;font-size: 1.1rem; font-weight: bold;">Vắng: ${students.filter(s => s.status === 'absent').length}</span> 
     <br>
     🕒 Cập nhật lần cuối :    ${bigClassesDatabase[classKey].lastUpdateTime || 'Chưa cập nhật'}
 </div>
@@ -1751,6 +1751,7 @@ const firebaseConfig = {
   appId: "1:597983373263:web:2a353cad3878390b5594ba",
   measurementId: "G-J7SVE1EYPZ"
 };
+
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
