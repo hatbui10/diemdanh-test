@@ -623,6 +623,11 @@ window.onload = async function () {
         }
     }
 
+// Thêm 2 dòng này vào để kích hoạt tính năng tự động reset sau 22h
+    checkAndAutoResetAfter22h();
+    setInterval(checkAndAutoResetAfter22h, 60000);
+
+
     // 2. Sau đó mới gọi đồng bộ ngầm với Firebase
     try {
         await window.loadFromFirebase();
@@ -1424,23 +1429,35 @@ function addNewStudentToClass(classKey) {
 
 function deleteStudentFromClass(classKey, studentId, studentName) {
     if (confirm(`Bạn có chắc chắn muốn XÓA học sinh [${studentName}] ra khỏi danh sách lớp [${classKey}]?`)) {
+        
+        if (!bigClassesDatabase[classKey] || !bigClassesDatabase[classKey].students) {
+            console.error(`Không tìm thấy dữ liệu cho lớp: ${classKey}`);
+            return;
+        }
+
         const targetSheet = bigClassesDatabase[classKey].sheet;
+        
+        // 1. Lọc bỏ học sinh bị xóa
         bigClassesDatabase[classKey].students = bigClassesDatabase[classKey].students.filter(s => s.id !== studentId);
-        bigClassesDatabase[classKey].students.forEach((s, idx) => { s.id = idx + 1; });
+        
+        // 2. Đánh lại số thứ tự (ID) từ 1 cho các học sinh còn lại
+        bigClassesDatabase[classKey].students.forEach((s, idx) => { 
+            s.id = idx + 1; 
+        });
+
+        // 3. Lưu lại trạng thái và làm mới giao diện lớp thông qua hàm chuẩn
         saveDatabaseState();
+        refreshClassUI(classKey);
         
-        const classIdStr = classKey.replace(/\s+/g, '-');
-        const studentsList = bigClassesDatabase[classKey].students;
-        const total = studentsList.length;
-        const absent = studentsList.filter(s => s.status === 'absent').length;
-        const present = total - absent;
-        document.getElementById(`stats-${classIdStr}`).innerText =  ' Có mặt: ' + present + ' -----    Vắng: ' + absent;
-        document.getElementById(`absentList-${classIdStr}`).innerHTML = renderAbsentRowsHtml(studentsList);
-        document.getElementById(`studentList-${classIdStr}`).innerHTML = renderStudentCardsHtml(classKey, studentsList);
-        
-        updateGroupStatsText(targetSheet);
+        if (typeof updateGroupStatsText === 'function') {
+            updateGroupStatsText(targetSheet);
+        }
+
+        console.log(`[XÓA THÀNH CÔNG]: Đã xóa và cập nhật lại lớp ${classKey}`);
     }
 }
+
+
 
 function copyAbsentReport(classKey) {
     const students = bigClassesDatabase[classKey].students;
@@ -1794,6 +1811,69 @@ function toggleExcusedStatus(classKey, uniqueKey, isChecked) {
     sessionStorage.clear();
     location.reload();
 	}
+
+
+function checkAndAutoResetAfter22h() {
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+    const todayString = now.toISOString().split('T')[0]; // Lấy ngày hiện tại: YYYY-MM-DD
+    
+    // Lấy ngày đã thực hiện reset gần nhất từ localStorage
+    const lastResetDate = localStorage.getItem('app_last_reset_date');
+
+    // Điều kiện: Từ 21:36 trở đi trong ngày VÀ hôm nay chưa reset lần nào
+    // (Đủ 21h và phút >= 36, hoặc từ 22h/23h trở đi)
+    const isAfterTargetTime = (currentHour > 21) || (currentHour === 21 && currentMinute >= 38);
+
+    if (isAfterTargetTime && lastResetDate !== todayString) {
+        
+        // 1. Reset trạng thái học sinh (đưa về bình thường, xóa cờ học sinh mới để mất màu nền đặc biệt)
+        if (typeof studentsList !== 'undefined' && Array.isArray(studentsList)) {
+            studentsList.forEach(student => {
+                student.status = 'normal';       
+                student.isNewStudentFlag = false; 
+                student.note = '';               
+                if (student.timeSlots) {
+                    student.timeSlots = student.timeSlots.map(slot => ({ state: 'normal', timestamp: null }));
+                }
+            });
+        }
+
+        // 2. Reset màu nền thẻ lớp / giao diện tổng quan
+        document.querySelectorAll('.student-card').forEach(card => {
+            card.className = 'student-card'; 
+        });
+        document.querySelectorAll('.class-card').forEach(card => {
+            card.classList.remove('active', 'has-new-student', 'updated'); 
+        });
+
+        // 3. Reset mục "Cập nhật lần cuối" về trạng thái ban đầu
+        const lastUpdateElements = document.querySelectorAll('.last-update-time, #last-update-status');
+        lastUpdateElements.forEach(el => {
+            el.innerText = "Chưa điểm danh"; 
+            el.classList.remove('updated', 'active');
+        });
+
+        localStorage.removeItem('last_update_timestamp');
+
+        // 4. Lưu lại mốc ngày hôm nay đã reset
+        localStorage.setItem('app_last_reset_date', todayString);
+
+        // 5. Lưu lại dữ liệu sạch vào Firebase / LocalStorage
+        if (typeof saveToFirebase === 'function') {
+            saveToFirebase(); 
+        } else if (typeof saveAllData === 'function') {
+            saveAllData();
+        }
+
+        console.log("[AUTO RESET 21:38]: Đã đưa toàn bộ giao diện và dữ liệu về trạng thái ban đầu.");
+        
+        if (typeof renderFullSystemUI === 'function') {
+            renderFullSystemUI();
+        }
+    }
+}
 
 	
 </script>
