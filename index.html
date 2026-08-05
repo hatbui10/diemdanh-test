@@ -1824,7 +1824,7 @@ function checkAndAutoResetAfter22h() {
 
     // Điều kiện: Từ 21:36 trở đi trong ngày VÀ hôm nay chưa reset lần nào
     // (Đủ 21h và phút >= 36, hoặc từ 22h/23h trở đi)
-    const isAfterTargetTime = (currentHour > 22) || (currentHour === 22 && currentMinute >= 42);
+    const isAfterTargetTime = (currentHour > 22) || (currentHour === 22 && currentMinute >= 45);
 
     if (isAfterTargetTime && lastResetDate !== todayString) {
         
