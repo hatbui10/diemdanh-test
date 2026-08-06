@@ -1128,7 +1128,7 @@ const absentActive = student.status === 'absent' ? 'active' : '';
         }).join('');
 
         return `
-            <div class="student-card status-${student.status}" id="${cardId}">
+            <div class="student-card ${cardStatusClass}" id="${cardId}">
                 <div class="student-info-row">
                     <div class="student-meta" style="display: flex; flex-direction: column; gap: 6px;">
     <!-- DÒNG TRÊN: Tên và Số điện thoại -->
@@ -1883,14 +1883,15 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebas
 import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCsMmRQ7qPD8Vh2GF10RtOxBSCJeu1XB3g",
-  authDomain: "diemdanh-test.firebaseapp.com",
-  projectId: "diemdanh-test",
-  storageBucket: "diemdanh-test.firebasestorage.app",
-  messagingSenderId: "597983373263",
-  appId: "1:597983373263:web:2a353cad3878390b5594ba",
-  measurementId: "G-J7SVE1EYPZ"
+  apiKey: "AIzaSyCwihbLJUIPmEpzbNgKxYCUs1AcX4SG42w",
+  authDomain: "diemdanhgv-d6a9b.firebaseapp.com",
+  projectId: "diemdanhgv-d6a9b",
+  storageBucket: "diemdanhgv-d6a9b.firebasestorage.app",
+  messagingSenderId: "530760774311",
+  appId: "1:530760774311:web:99a4273d0a1defd67f2182",
+  measurementId: "G-16C79QHVQJ"
 };
+
 
 
 const app = initializeApp(firebaseConfig);
