@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -1128,7 +1128,7 @@ const absentActive = student.status === 'absent' ? 'active' : '';
         }).join('');
 
         return `
-            <div class="student-card ${cardStatusClass}" id="${cardId}">
+            <div class="student-card status-${student.status}" id="${cardId}">
                 <div class="student-info-row">
                     <div class="student-meta" style="display: flex; flex-direction: column; gap: 6px;">
     <!-- DÒNG TRÊN: Tên và Số điện thoại -->
@@ -1880,19 +1880,17 @@ function checkAndAutoResetAfter22h() {
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCsMmRQ7qPD8Vh2GF10RtOxBSCJeu1XB3g",
-  authDomain: "diemdanh-test.firebaseapp.com",
-  projectId: "diemdanh-test",
-  storageBucket: "diemdanh-test.firebasestorage.app",
-  messagingSenderId: "597983373263",
-  appId: "1:597983373263:web:2a353cad3878390b5594ba",
-  measurementId: "G-J7SVE1EYPZ"
+    apiKey: "AIzaSyCsMmRQ7qPD8Vh2GF10RtOxBSCJeu1XB3g",
+    authDomain: "diemdanh-test.firebaseapp.com",
+    projectId: "diemdanh-test",
+    storageBucket: "diemdanh-test.firebasestorage.app",
+    messagingSenderId: "597983373263",
+    appId: "1:597983373263:web:2a353cad3878390b5594ba",
+    measurementId: "G-J7SVE1EYPZ"
 };
-
-
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -1913,6 +1911,7 @@ window.saveToFirebase = async function () {
     }
 }
 
+// Giữ lại hàm loadFromFirebase theo ý bạn để không bị lỗi ở các chỗ khác
 window.loadFromFirebase = async function () {
     try {
         const docRef = doc(db, "system", "database");
@@ -1921,15 +1920,13 @@ window.loadFromFirebase = async function () {
         if (docSnap.exists()) {
             const data = docSnap.data();
             bigClassesDatabase = data.database || {};
-			localStorage.setItem("big_classes_database", JSON.stringify(bigClassesDatabase));
+            localStorage.setItem("big_classes_database", JSON.stringify(bigClassesDatabase));
             if (data.filename) {
                 localStorage.setItem("big_classes_filename", data.filename);
             }
-            renderFullSystemUI();
- 
-
-
-
+            if (typeof renderFullSystemUI === "function") {
+                renderFullSystemUI();
+            }
             console.log("Đã tải dữ liệu từ Firebase");
         } else {
             console.log("Chưa có dữ liệu trên Firebase");
@@ -1939,36 +1936,45 @@ window.loadFromFirebase = async function () {
     }
 }
 
+// Tự động lắng nghe thời gian thực (real-time snapshot) cho 10 thiết bị
+function initRealtimeSync() {
+    const docRef = doc(db, "system", "database");
+    onSnapshot(docRef, (docSnap) => {
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            bigClassesDatabase = data.database || {};
+            localStorage.setItem("big_classes_database", JSON.stringify(bigClassesDatabase));
+            if (data.filename) {
+                localStorage.setItem("big_classes_filename", data.filename);
+            }
+            if (typeof renderFullSystemUI === "function") {
+                renderFullSystemUI();
+            }
+            console.log("Đã tự động đồng bộ dữ liệu thời gian thực từ máy khác");
+        }
+    }, (err) => {
+        console.error("Lỗi lắng nghe Firebase:", err);
+    });
+}
+
+// Kích hoạt lắng nghe ngầm ngay khi load trang
+initRealtimeSync();
+
 window.testFirebase = async function () { await window.saveToFirebase(); }
 window.db = db;
 console.log("Đã kết nối Firebase");
 
-
-
-
-
 function backupAttendanceData(){
-
     const backup = {};
-
     Object.keys(bigClassesDatabase).forEach(classKey=>{
-
         backup[classKey]=bigClassesDatabase[classKey].students.map(s=>({
-
             name:s.name,
-
             phone:s.phone,
-
             status:s.status,
-
             note:s.note,
-
             timeSlots:s.timeSlots||[],
-
             absentTime:s.absentTime||""
-
         }));
-
     });
 
     const blob=new Blob(
@@ -1980,16 +1986,10 @@ function backupAttendanceData(){
     a.href=URL.createObjectURL(blob);
     a.download="AttendanceBackup.json";
     a.click();
-
 }
-
-
-
-
-
-
-
-
 </script>
+
+
+
 </body>
 </html>
