@@ -603,7 +603,20 @@ function displayPhone(p) {
 
 
 window.onload = async function () {
-    // 1. Hiển thị ngay lập tức dữ liệu đang lưu trong bộ nhớ trình duyệt để không bị mất thông tin
+    // 1. Kiểm tra xem đã qua 2 tiếng kể từ lần tương tác cuối cùng chưa trước khi hiển thị dữ liệu
+    const lastInteractionTime = localStorage.getItem('app_last_interaction_timestamp');
+    if (lastInteractionTime) {
+        const now = Date.now();
+        const elapsedHours = (now - parseInt(lastInteractionTime)) / (1000 * 60 * 60);
+        
+        if (elapsedHours >= 2) {
+            // Nếu đã quá 2 tiếng, xóa sạch dữ liệu cũ trong localStorage
+            localStorage.removeItem("big_classes_database");
+            localStorage.removeItem('app_last_interaction_timestamp');
+        }
+    }
+
+    // 2. Hiển thị dữ liệu từ bộ nhớ trình duyệt (nếu còn hạn dưới 2 tiếng)
     const cachedData = localStorage.getItem("big_classes_database");
     if (cachedData) {
         try {
@@ -614,12 +627,10 @@ window.onload = async function () {
         }
     }
 
-// Thêm 2 dòng này vào để kích hoạt tính năng tự động reset sau 22h
-    checkAndAutoResetAfter22h();
-    setInterval(checkAndAutoResetAfter22h, 60000);
+    // 3. Kích hoạt bộ đếm thời gian tự động kiểm tra mỗi phút (60000ms) để reset sau 2 tiếng
+    setInterval(checkAndAutoResetAfter2Hours, 60000);
 
-
-    // 2. Sau đó mới gọi đồng bộ ngầm với Firebase
+    // 4. Sau đó mới gọi đồng bộ ngầm với Firebase
     try {
         await window.loadFromFirebase();
     } catch (e) {
