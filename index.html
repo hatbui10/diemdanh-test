@@ -564,40 +564,103 @@ function displayPhone(p) {
 
 
 
-window.onload = async function () {
-    // 1. Kiểm tra xem đã qua 2 tiếng kể từ lần tương tác cuối cùng chưa trước khi hiển thị dữ liệu
-    const lastInteractionTime = localStorage.getItem('app_last_interaction_timestamp');
-    if (lastInteractionTime) {
-        const now = Date.now();
-        const elapsedHours = (now - parseInt(lastInteractionTime)) / (1000 * 60 * 60);
-        
-        if (elapsedHours >= 2) {
-            // Nếu đã quá 2 tiếng, xóa sạch dữ liệu cũ trong localStorage
-            localStorage.removeItem("big_classes_database");
-            localStorage.removeItem('app_last_interaction_timestamp');
-        }
-    }
 
-    // 2. Hiển thị dữ liệu từ bộ nhớ trình duyệt (nếu còn hạn dưới 2 tiếng)
+window.onload = async function () {
+
+    console.log("🚀 window.onload đã chạy");
+
+    // =========================================================
+    // 1. Hiển thị dữ liệu tạm từ LocalStorage
+    // =========================================================
+
     const cachedData = localStorage.getItem("big_classes_database");
+
     if (cachedData) {
         try {
+
             bigClassesDatabase = JSON.parse(cachedData);
-            renderFullSystemUI();
+
+            console.log("📦 Đã đọc dữ liệu từ LocalStorage");
+
+            if (typeof renderFullSystemUI === "function") {
+                renderFullSystemUI();
+                console.log("🎨 Đã render giao diện từ LocalStorage");
+            }
+
         } catch (err) {
-            console.error("Lỗi phân tích LocalStorage:", err);
+
+            console.error(
+                "❌ Lỗi phân tích LocalStorage:",
+                err
+            );
+
+            localStorage.removeItem("big_classes_database");
         }
     }
 
-    // 3. Kích hoạt bộ đếm thời gian tự động kiểm tra mỗi phút (60000ms) để reset sau 2 tiếng
-    setInterval(checkAndAutoResetAfter2Hours, 60000);
 
-    // 4. Sau đó mới gọi đồng bộ ngầm với Firebase
-    try {
-        await window.loadFromFirebase();
-    } catch (e) {
-        console.warn("Không thể đồng bộ từ Firebase, tiếp tục dùng dữ liệu LocalStorage.", e);
+    // =========================================================
+    // 2. Chờ Firebase module khởi tạo xong
+    // =========================================================
+
+    let retryCount = 0;
+    const maxRetry = 50;
+
+    while (
+        typeof window.loadFromFirebase !== "function" &&
+        retryCount < maxRetry
+    ) {
+
+        console.log(
+            `⏳ Đang chờ Firebase... (${retryCount + 1}/${maxRetry})`
+        );
+
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        retryCount++;
     }
+
+
+    // =========================================================
+    // 3. Tải dữ liệu mới nhất từ Firebase
+    // =========================================================
+
+    if (typeof window.loadFromFirebase === "function") {
+
+        try {
+
+            console.log("🔥 Bắt đầu tải dữ liệu từ Firebase...");
+
+            await window.loadFromFirebase();
+
+            console.log(
+                "✅ Đã tải dữ liệu từ Firebase thành công"
+            );
+
+        } catch (error) {
+
+            console.error(
+                "❌ Lỗi khi tải dữ liệu Firebase:",
+                error
+            );
+        }
+
+    } else {
+
+        console.error(
+            "❌ Sau khi chờ vẫn không tìm thấy window.loadFromFirebase!"
+        );
+    }
+
+
+    // =========================================================
+    // 4. Kiểm tra realtime Firebase
+    // =========================================================
+
+    console.log(
+        "📡 Kiểm tra Firebase realtime:",
+        typeof window.loadFromFirebase
+    );
 };
 
 
@@ -768,7 +831,7 @@ function startProcessingExcel(input) {
 
 // 2. HÀM XỬ LÝ ĐIỂM DANH (Đặt ở đây)
 // ==========================================
-function toggleAbsent(targetUniqueKey) {
+async function toggleAbsent(targetUniqueKey) {
     let found = false;
 
     for (let className in bigClassesDatabase) {
@@ -796,7 +859,7 @@ function toggleAbsent(targetUniqueKey) {
             refreshClassUI(className);
 
             // Lưu dữ liệu
-            saveDatabaseState();
+          await saveDatabaseState();
 
             break;
         }
@@ -809,6 +872,8 @@ function toggleAbsent(targetUniqueKey) {
         );
     }
 }
+
+
 
 
 function toggleClassAccordion(headerElement) {
@@ -1325,10 +1390,48 @@ function copyAbsentReport(classKey) {
     }).catch(() => alert('Lỗi không thể tự động copy.'));
 }
 
+
+
+
 async function saveDatabaseState() {
-    localStorage.setItem('big_classes_database', JSON.stringify(bigClassesDatabase));
-    await window.saveToFirebase();
+    try {
+
+        // 1. Lưu dữ liệu vào LocalStorage
+        localStorage.setItem(
+            "big_classes_database",
+            JSON.stringify(bigClassesDatabase)
+        );
+
+        // 2. Gọi hàm Firebase nằm trong <script type="module">
+        if (typeof window.saveToFirebase === "function") {
+
+            await window.saveToFirebase();
+
+            console.log("✅ Đã lưu LocalStorage + Firebase");
+
+        } else {
+
+            console.error(
+                "❌ window.saveToFirebase chưa được khởi tạo!"
+            );
+        }
+
+    } catch (error) {
+
+        console.error(
+            "❌ Lỗi saveDatabaseState:",
+            error
+        );
+    }
 }
+
+
+
+
+
+
+
+
 
 function callPhoneAction(phone) {
     if (!phone || phone === 'Chưa có') { alert('Chưa cập nhật SĐT học viên!'); return; }
@@ -1781,7 +1884,7 @@ setInterval(checkDailyResetTimeWithNotification, 60000);
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCsMmRQ7qPD8Vh2GF10RtOxBSCJeu1XB3g",
@@ -1792,6 +1895,7 @@ const firebaseConfig = {
     appId: "1:597983373263:web:2a353cad3878390b5594ba",
     measurementId: "G-J7SVE1EYPZ"
 };
+
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -1877,6 +1981,12 @@ function initRealtimeSync() {
         console.error("Lỗi lắng nghe Firebase:", err);
     });
 }
+
+
+// 🔄 BẬT ĐỒNG BỘ REALTIME GIỮA CÁC THIẾT BỊ
+initRealtimeSync();
+
+
 
 
 function updateVisibleClassesFromFirebase() {
