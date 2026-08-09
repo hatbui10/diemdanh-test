@@ -829,37 +829,59 @@ function startProcessingExcel(input) {
 
 
 
-// 2. HÀM XỬ LÝ ĐIỂM DANH (Đặt ở đây)
-// ==========================================
+
 async function toggleAbsent(targetUniqueKey) {
     let found = false;
 
     for (let className in bigClassesDatabase) {
+
         const student = bigClassesDatabase[className].students
             .find(s => s.uniqueKey === targetUniqueKey);
 
         if (student) {
+
             // Đổi trạng thái
             student.status =
-                student.status === 'absent'
-                    ? 'present'
-                    : 'absent';
+                student.status === "absent"
+                    ? "present"
+                    : "absent";
 
-            student.absentTime =
-                student.status === 'absent'
-                    ? new Date().toLocaleTimeString('vi-VN', {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    })
-                    : "";
+
+            // =================================================
+            // Nếu bấm VẮNG
+            // =================================================
+            if (student.status === "absent") {
+
+                const now = Date.now();
+
+                // Thời gian hiển thị
+                student.absentTime =
+                    new Date().toLocaleTimeString("vi-VN", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit"
+                    });
+
+                // Timestamp chính xác để tính 3 phút
+                student.absentTimestamp = now;
+
+            } else {
+
+                // Bấm lại thành CÓ MẶT
+                student.absentTime = "";
+
+                // Xóa mốc thời gian 3 phút
+                delete student.absentTimestamp;
+            }
+
 
             found = true;
 
-            // Cập nhật giao diện ngay lập tức
+            // Cập nhật giao diện ngay
             refreshClassUI(className);
 
-            // Lưu dữ liệu
-          await saveDatabaseState();
+            // Lưu Firebase
+            await saveDatabaseState();
 
             break;
         }
@@ -872,6 +894,7 @@ async function toggleAbsent(targetUniqueKey) {
         );
     }
 }
+
 
 
 
@@ -1753,129 +1776,333 @@ function toggleExcusedStatus(classKey, uniqueKey, isChecked) {
 	}
 
 
-function checkAndAutoResetAfter22h() {
+
+// ============================================================
+// TỰ ĐỘNG XÓA ĐIỂM DANH TRONG KHUNG GIỜ 22:00 → 06:00
+// ============================================================
+
+function getResetNightKey() {
     const now = new Date();
-    const currentHour = now.getHours();
-    const currentMinute = now.getMinutes();
-    const todayString = now.toISOString().split('T')[0]; // Lấy ngày hiện tại: YYYY-MM-DD
-    
-    // Lấy ngày đã thực hiện reset gần nhất từ localStorage
-    const lastResetDate = localStorage.getItem('app_last_reset_date');
 
-    // Điều kiện: Từ 21:36 trở đi trong ngày VÀ hôm nay chưa reset lần nào
-    // (Đủ 21h và phút >= 36, hoặc từ 22h/23h trở đi)
-    const isAfterTargetTime = (currentHour > 22) || (currentHour === 22 && currentMinute >= 45);
+    let year = now.getFullYear();
+    let month = now.getMonth();
+    let day = now.getDate();
+    const hour = now.getHours();
 
-    if (isAfterTargetTime && lastResetDate !== todayString) {
-        
-        // 1. Reset trạng thái học sinh (đưa về bình thường, xóa cờ học sinh mới để mất màu nền đặc biệt)
-        if (typeof studentsList !== 'undefined' && Array.isArray(studentsList)) {
-            studentsList.forEach(student => {
-                student.status = 'normal';       
-                student.isNewStudentFlag = false; 
-                student.note = '';               
-                if (student.timeSlots) {
-                    student.timeSlots = student.timeSlots.map(slot => ({ state: 'normal', timestamp: null }));
-                }
-            });
-        }
+    /*
+     * Nếu đang từ 00:00 → 05:59
+     * thì vẫn tính là "đêm của ngày hôm trước".
+     *
+     * Ví dụ:
+     * 23:00 ngày 09/08 → đêm 09/08
+     * 02:00 ngày 10/08 → vẫn là đêm 09/08
+     */
 
-        // 2. Reset màu nền thẻ lớp / giao diện tổng quan
-        document.querySelectorAll('.student-card').forEach(card => {
-            card.className = 'student-card'; 
-        });
-        document.querySelectorAll('.class-card').forEach(card => {
-            card.classList.remove('active', 'has-new-student', 'updated'); 
-        });
+    if (hour < 6) {
+        const yesterday = new Date(year, month, day - 1);
 
-        // 3. Reset mục "Cập nhật lần cuối" về trạng thái ban đầu
-        const lastUpdateElements = document.querySelectorAll('.last-update-time, #last-update-status');
-        lastUpdateElements.forEach(el => {
-            el.innerText = "Chưa điểm danh"; 
-            el.classList.remove('updated', 'active');
-        });
-
-        localStorage.removeItem('last_update_timestamp');
-
-        // 4. Lưu lại mốc ngày hôm nay đã reset
-        localStorage.setItem('app_last_reset_date', todayString);
-
-        // 5. Lưu lại dữ liệu sạch vào Firebase / LocalStorage
-        if (typeof saveToFirebase === 'function') {
-            saveToFirebase(); 
-        } else if (typeof saveAllData === 'function') {
-            saveAllData();
-        }
-
-        console.log("[AUTO RESET 21:38]: Đã đưa toàn bộ giao diện và dữ liệu về trạng thái ban đầu.");
-        
-        if (typeof renderFullSystemUI === 'function') {
-            renderFullSystemUI();
-        }
+        year = yesterday.getFullYear();
+        month = yesterday.getMonth();
+        day = yesterday.getDate();
     }
+
+    return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 
-// Hàm kiểm tra thời gian và hiển thị thông báo trực quan trên giao diện
-function checkDailyResetTimeWithNotification() {
-    const now = new Date();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
-    
-    const todayStr = now.toISOString().split('T')[0];
-    const lastResetDate = localStorage.getItem('last_auto_reset_date');
 
-    if (hours === 9 && minutes >= 52 && lastResetDate !== todayStr) {
-        localStorage.setItem('last_auto_reset_date', todayStr);
 
-        showUINotification("Đã tự động xóa dữ liệu lúc 9:52!");
 
-        // CÁCH KHẮC PHỤC: Gọi thẳng hàm xử lý xóa dữ liệu của bạn ở đây 
-        // (Thay 'clearSystemCache' bằng tên hàm xử lý xóa thực tế trong mã nguồn của bạn)
-        if (typeof clearSystemCache === 'function') {
+
+
+
+// ============================================================
+// TỰ ĐỘNG KIỂM TRA VẮNG
+// KHUNG TEST: 11:23 → 11:30
+// Nếu học sinh Vắng liên tục đủ 3 phút → RESET
+// ============================================================
+
+
+function checkNightAutoReset() {
+
+    const now = Date.now();
+    const currentDate = new Date();
+
+    // ========================================================
+    // KHUNG THỜI GIAN THỰC TẾ: 22:00 → 06:00 SÁNG HÔM SAU
+    // ========================================================
+
+    const currentMinutes =
+        currentDate.getHours() * 60 +
+        currentDate.getMinutes();
+
+  
+// 22:20
+const startMinutes = 22 * 60 + 32;
+
+// 22:30
+const endMinutes = 6 * 60 + 36;
+
+
+
+    /*
+     * Vì khung giờ đi qua 00:00 nên phải dùng OR:
+     *
+     * 22:00 → 23:59
+     * hoặc
+     * 00:00 → 05:59
+     */
+
+    const isNightTime =
+        currentMinutes >= startMinutes ||
+        currentMinutes < endMinutes;
+
+
+    // ========================================================
+    // Ngoài khung 22:00 → 06:00 thì không kiểm tra
+    // ========================================================
+
+    if (!isNightTime) {
+        return;
+    }
+
+    // ========================================================
+    // PHẦN KIỂM TRA HỌC SINH VẮNG Ở DƯỚI GIỮ NGUYÊN
+    // ========================================================
+
+
+
+    // ========================================================
+    // KIỂM TRA TOÀN BỘ HỌC SINH
+    // ========================================================
+
+    let shouldReset = false;
+    let absentStudentName = "";
+
+
+    for (
+        const className of Object.keys(
+            bigClassesDatabase || {}
+        )
+    ) {
+
+        const classData =
+            bigClassesDatabase[className];
+
+
+        if (
+            !classData ||
+            !Array.isArray(classData.students)
+        ) {
+            continue;
+        }
+
+
+        for (const student of classData.students) {
+
+            // ------------------------------------------------
+            // Chỉ xử lý học sinh đang Vắng
+            // ------------------------------------------------
+
+            if (student.status !== "absent") {
+                continue;
+            }
+
+
+            // ------------------------------------------------
+            // Không có timestamp thì bỏ qua
+            // ------------------------------------------------
+
+            if (!student.absentTimestamp) {
+                continue;
+            }
+
+
+            // ------------------------------------------------
+            // Tính thời gian đã Vắng
+            // ------------------------------------------------
+
+            const elapsed =
+                now - Number(student.absentTimestamp);
+
+
+            // =================================================
+            // ĐỦ 3 PHÚT
+            // =================================================
+
+            if (elapsed >= 3 * 60 * 1000) {
+
+                console.log(
+                    "🌙 Phát hiện học sinh Vắng quá 3 phút:",
+                    student.name
+                );
+
+
+                absentStudentName =
+                    student.name || "Một học sinh";
+
+
+                shouldReset = true;
+
+                break;
+            }
+        }
+
+
+        if (shouldReset) {
+            break;
+        }
+    }
+
+
+    // ========================================================
+    // CHƯA CÓ HỌC SINH VẮNG ĐỦ 3 PHÚT
+    // ========================================================
+
+    if (!shouldReset) {
+        return;
+    }
+
+
+    // ========================================================
+    // THÔNG BÁO TRƯỚC KHI RESET
+    // ========================================================
+
+    if (
+        typeof showUINotification === "function"
+    ) {
+
+        showUINotification(
+            `⚠️ ${absentStudentName} đã Vắng đủ 3 phút. Hệ thống đang tự động xóa dữ liệu điểm danh...`
+        );
+    }
+
+
+    console.log(
+        "🔄 Đang tự động xóa dữ liệu điểm danh..."
+    );
+
+
+    // ========================================================
+    // RESET
+    // ========================================================
+
+    if (
+        typeof clearSystemCache === "function"
+    ) {
+
+        // clearSystemCache() có confirm()
+        // Tự động reset nên tạm thời bỏ qua confirm
+
+        const originalConfirm =
+            window.confirm;
+
+
+        window.confirm = function () {
+            return true;
+        };
+
+
+        try {
+
             clearSystemCache();
-        } else {
-            // Nếu không gọi được hàm riêng, dùng cách tự động vượt qua bảng xác nhận:
-            window.confirm = function() { return true; };
-            const deleteButton = document.getElementById('btnXoa');
-            if (deleteButton) deleteButton.click();
+
+
+            console.log(
+                "✅ Đã tự động reset điểm danh."
+            );
+
+
+            // ------------------------------------------------
+            // THÔNG BÁO SAU KHI RESET
+            // ------------------------------------------------
+
+            setTimeout(() => {
+
+                if (
+                    typeof showUINotification ===
+                    "function"
+                ) {
+
+                    showUINotification(
+                        "✅ Đã xóa toàn bộ dữ liệu điểm danh cũ và đồng bộ với các thiết bị."
+                    );
+                }
+
+            }, 500);
+
+
+        } catch (error) {
+
+            console.error(
+                "❌ Lỗi khi tự động reset:",
+                error
+            );
+
+
+            if (
+                typeof showUINotification ===
+                "function"
+            ) {
+
+                showUINotification(
+                    "❌ Không thể tự động xóa dữ liệu điểm danh."
+                );
+            }
+
+
+        } finally {
+
+            // Khôi phục confirm bình thường
+            window.confirm =
+                originalConfirm;
+        }
+
+
+    } else {
+
+        console.error(
+            "❌ Không tìm thấy hàm clearSystemCache()!"
+        );
+
+
+        if (
+            typeof showUINotification ===
+            "function"
+        ) {
+
+            showUINotification(
+                "❌ Không tìm thấy hàm xóa dữ liệu!"
+            );
         }
     }
 }
 
 
-// Hàm phụ trợ tạo khung thông báo đẹp mắt trên giao diện
-function showUINotification(message) {
-    let notifyBox = document.getElementById('auto-reset-toast');
-    if (!notifyBox) {
-        notifyBox = document.createElement('div');
-        notifyBox.id = 'auto-reset-toast';
-        notifyBox.style.position = 'fixed';
-        notifyBox.style.top = '20px';
-        notifyBox.style.right = '20px';
-        notifyBox.style.backgroundColor = '#10B981'; // Màu xanh lá chủ đạo
-        notifyBox.style.color = '#ffffff';
-        notifyBox.style.padding = '12px 20px';
-        notifyBox.style.borderRadius = '8px';
-        notifyBox.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-        notifyBox.style.zIndex = '999999';
-        notifyBox.style.fontFamily = 'sans-serif';
-        notifyBox.style.fontSize = '14px';
-        notifyBox.style.fontWeight = '500';
-        notifyBox.style.transition = 'opacity 0.4s ease';
-        document.body.appendChild(notifyBox);
-    }
+// ============================================================
+// KIỂM TRA MỖI 10 GIÂY
+// ============================================================
 
-    notifyBox.innerText = message;
-    notifyBox.style.opacity = '1';
+setInterval(
+    checkNightAutoReset,
+    10000
+);
 
-    // Tự động mờ dần và ẩn thông báo sau 6 giây
-    setTimeout(() => {
-        notifyBox.style.opacity = '0';
-    }, 6000);
-}
 
-// Quét kiểm tra thời gian mỗi phút một lần (60000ms)
-setInterval(checkDailyResetTimeWithNotification, 60000);
+// ============================================================
+// KIỂM TRA NGAY KHI MỞ TRANG
+// ============================================================
+
+checkNightAutoReset();
+
+
+
+
+
+
+
+
+
+
 
 
 
