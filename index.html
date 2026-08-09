@@ -45,10 +45,7 @@ body.role-teacher .btn-call,
 body.role-teacher .btn-delete,
 
 body.role-teacher .student-controls-row .btn-present,
-/* Ẩn các ô điểm danh thời gian thực (time-slots-row) đối với tài khoản Giáo Viên */
-body.role-teacher .time-slots-row {
-    display: none !important;
-}
+
 body.role-teacher .student-controls-row .note-select {
     display: none !important;
 }
@@ -249,37 +246,6 @@ border-radius: 20px;
 }
 
 
-/* ⏱️ 8 Ô ĐIỂM DANH THỜI GIAN THỰC */
-        .time-slots-row {
-            display: flex;
-            gap: 4px;
-            margin-top: 6px;
-            justify-content: space-between;
-        }
-         .time-slot-btn {
-            flex: 1;
-            background: #A1CB35;
-            border: 1px solid #333;
-            color: #FFFCE1;
-            padding: 6px 2px;
-            font-size: 0.7rem;
-            font-weight: bold;
-            border-radius: 3px;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.2s;
-        }
-        .time-slot-btn.status-yellow {
-            background: #ffd700 !important;
-            color: #000 !important;
-            border-color: #ffd700;
-            box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
-        }
-        .time-slot-btn.locked {
-            opacity: 0.5;
-            cursor: not-allowed !important;
-            pointer-events: none !important;
-        }
 
 
 
@@ -520,12 +486,10 @@ margin-right: 20px; /* Thêm dòng này để cách mép phải 20px */
     <!-- Nút tải lên File Excel (Biến thẻ label thành dạng nút bấm ngang) -->
     <label for="excelFileInput" class="custom-upload-btn" style="margin: 0;margin-top: 3%; cursor: pointer; text-align: center;">📂 Tải lên File Excel</label>
     
-    <!-- ➕ NÚT RESET Ô ĐIỂM DANH MỚI -->
-    <button class="custom-upload-btn" style="margin: 0;margin-top: 3%; border-color: #ffd700; color: #ffd700; white-space: nowrap;" onclick="confirmResetTimeSlots()">🔄 RESET Ô ĐIỂM DANH</button>
-    
+   
     <input type="file" id="excelFileInput" accept=".xlsx, .xls" style="display: none;" onchange="startProcessingExcel(this)">
     
-    <button class="btn-danger-top" onclick="clearSystemCache()" style="display: none;">XÓA dữ liệu CŨ</button>
+    <button class="btn-danger-top" onclick="clearSystemCache()" ">XÓA điểm danh cũ</button>
 </div>
 
     </div>
@@ -802,7 +766,7 @@ function startProcessingExcel(input) {
                                     status: oldStudent?.status || "present",
                                     note: oldStudent?.note || "",
                                     absentTime: oldStudent?.absentTime || "",
-                                    timeSlots: oldStudent?.timeSlots || Array(8).fill({ state: 'normal', timestamp: null }),
+                                  
                                     history: oldStudent?.history || [],
                                     evaluations: oldStudent?.evaluations || {},
                                     lastEditor: oldStudent?.lastEditor || "",
@@ -1075,59 +1039,7 @@ const absentActive = student.status === 'absent' ? 'active' : '';
         const presentActive = student.status === 'present' ? 'active' : '';
         const cardId = `card-${classKey.replace(/\s+/g, '-')}-${student.id}`;
 
-        // Khởi tạo mảng 8 ô nếu chưa có
-        if (!student.timeSlots) student.timeSlots = Array(8).fill({ state: 'normal', timestamp: null });
-        const now = Date.now();
-
-
- // Nếu là học sinh mới, ưu tiên gắn class màu nền học sinh mới, ngược lại chạy theo status chuẩn
-        let cardStatusClass = `status-${student.status}`;
-        if (student.isNewStudentFlag) {
-            cardStatusClass = 'status-new-student';
-        }
-
-        // Tạo HTML cho 8 ô
-        let slotsHtml = student.timeSlots.map((slot, slotIdx) => {
-            let btnClass = 'time-slot-btn';
-            if (slot.state === 'yellow') btnClass += ' status-yellow';
-            
-            // Kiểm tra logic khóa
-            let isLocked = false;
-            if (slot.timestamp) {
-                let elapsedMinutes = (now - slot.timestamp) / (1000 * 60);
-                let elapsedHours = (now - slot.timestamp) / (1000 * 60 * 60);
-
-                if (slotIdx === 0) {
-                    // Ô 1: Khóa sau 30 phút kể từ lúc bấm
-                    if (elapsedMinutes > 30) isLocked = true;
-                } else {
-                    // Các ô còn lại: Chỉ mở sau 10 tiếng kể từ ô đã điểm danh trước đó (hoặc khóa nếu quá hạn/chưa đến điều kiện)
-                    // Hoặc nếu ô 1 đã bị khóa sau 30 phút thì khóa luôn các ô còn lại nếu chưa bật
-                    let firstSlot = student.timeSlots[0];
-                    if (firstSlot.timestamp) {
-                        let timeSinceFirst = (now - firstSlot.timestamp) / (1000 * 60 * 60);
-                        if (timeSinceFirst < 10 && slot.state !== 'yellow') {
-                            isLocked = true; // Chưa đủ 10 tiếng thì khóa các ô sau
-                        } else if (timeSinceFirst >= 10 && slot.state === 'yellow') {
-                            isLocked = true; // Đã điểm danh trước đó thì không thể thay đổi
-                        }
-                    } else {
-                        isLocked = true; // Chưa bấm ô 1 thì khóa các ô sau
-                    }
-                }
-            } else if (slotIdx > 0) {
-                // Nếu ô 1 chưa bấm thì khóa các ô sau
-                isLocked = true;
-            }
-
-            if (isLocked && slot.state === 'normal') btnClass += ' locked';
-            if (slot.state === 'yellow' && slot.timestamp && (now - slot.timestamp) / (1000 * 60 * 60) >= 10) {
-                // Cố định ô đã điểm danh trước đó không thể thay đổi sau 10 tiếng
-                btnClass += ' locked';
-            }
-
-            return `<button class="${btnClass}" onclick="handleTimeSlotClick('${classKey}', ${student.id}, ${slotIdx})">Buổi ${slotIdx + 1}</button>`;
-        }).join('');
+       
 
         return `
             <div class="student-card status-${student.status}" id="${cardId}">
@@ -1157,10 +1069,7 @@ const absentActive = student.status === 'absent' ? 'active' : '';
                     </div>
                 </div>
                 
-                <!-- ⏱️ 8 Ô THỜI GIAN -->
-                <div class="time-slots-row">
-                    ${slotsHtml}
-                </div>
+                
 
                 <div class="student-controls-row" style="margin-top: 6px;">
                     <button class="btn-action btn-present ${presentActive}" onclick="updateStudentStatus('${classKey}', ${student.id}, 'present')" style="display: none">Đi Học</button>
@@ -1573,16 +1482,60 @@ function handleSearchKeyPress(event) {
     if (event.key === 'Enter') { searchGlobalStudent(); }
 }
 
+
+
+
 function clearSystemCache() {
-    if (confirm("Bạn có chắc chắn muốn xóa toàn bộ danh sách lớp học hiện tại khỏi bộ nhớ trình duyệt?")) {
-        localStorage.removeItem('big_classes_database');
-        localStorage.removeItem('big_classes_filename');
-        bigClassesDatabase = {};
-        renderFullSystemUI();
-        document.getElementById('fileStatusMessage').style.color = "#ffd700";
-        document.getElementById('fileStatusMessage').innerText = "Chưa có dữ liệu học viên. Vui lòng chọn tệp Excel.";
+    if (confirm("Bạn có chắc chắn muốn xóa toàn bộ dữ liệu điểm danh đã thao tác không? (File và danh sách lớp gốc vẫn được giữ nguyên)")) {
+        if (typeof bigClassesDatabase !== 'undefined' && bigClassesDatabase) {
+            Object.keys(bigClassesDatabase).forEach(className => {
+                let classData = bigClassesDatabase[className];
+                
+                if (classData && classData.students && Array.isArray(classData.students)) {
+                    // Reset lại trạng thái của từng học sinh trong lớp
+                    classData.students.forEach(student => {
+                        student.status = "present";       // Đưa trạng thái về mặc định (có mặt)
+                        student.absentTime = "";          // Xóa giờ vắng
+                        student.note = "";                // Xóa ghi chú
+                        student.isExcused = false;        // Xóa trạng thái có phép
+                        if (student.timeSlots) {
+                            student.timeSlots = student.timeSlots.map(slot => ({ state: 'normal', timestamp: null }));
+                        }
+                    });
+                }
+                
+                // Reset các cờ trạng thái của lớp
+                classData.isFull = false;
+                classData.hasNewStudent = false;
+                classData.lastUpdateTime = "";
+            });
+        }
+
+        // Cập nhật lại LocalStorage
+        if (typeof localStorage !== 'undefined' && typeof bigClassesDatabase !== 'undefined') {
+            localStorage.setItem('big_classes_database', JSON.stringify(bigClassesDatabase));
+        }
+
+        // Đẩy dữ liệu đã xóa sạch lên Firebase để đồng bộ các thiết bị
+        if (typeof window.saveToFirebase === 'function') {
+            window.saveToFirebase();
+        }
+
+        // Vẽ lại giao diện hệ thống
+        if (typeof renderFullSystemUI === 'function') {
+            renderFullSystemUI();
+        }
+
+        // Cập nhật thông báo trạng thái
+        const statusMsg = document.getElementById('fileStatusMessage');
+        if (statusMsg) {
+            statusMsg.style.color = "#00ff66";
+            statusMsg.innerText = "✅ Đã xóa toàn bộ dữ liệu điểm danh cũ. File Excel gốc được giữ nguyên.";
+        }
     }
 }
+
+
 
 
 function toggleNewStudentBlink(buttonElement, classKey) {
@@ -1651,122 +1604,11 @@ function verifyUploadPassword(inputElement) {
 
 
 
-function handleTimeSlotClick(classKey, studentId, slotIdx) {
-    let student = bigClassesDatabase[classKey].students.find(s => s.id === studentId);
-    if (!student) return;
-
-    if (!student.timeSlots) student.timeSlots = Array(8).fill({ state: 'normal', timestamp: null });
-    
-    let slot = student.timeSlots[slotIdx];
-    let now = Date.now();
-
-    // Nếu bấm ô 1 (chuyển sang màu vàng)
-    if (slotIdx === 0) {
-        if (slot.state === 'normal') {
-            student.timeSlots[0] = { state: 'yellow', timestamp: now };
-        } else if (slot.state === 'yellow') {
-            // Kiểm tra xem đã qua 30 phút chưa, nếu qua rồi thì không cho phép hủy màu vàng
-            let elapsedMinutes = (now - slot.timestamp) / (1000 * 60);
-            if (elapsedMinutes <= 30) {
-                student.timeSlots[0] = { state: 'normal', timestamp: null };
-            } else {
-                alert("Đã quá 30 phút, ô này đã bị khóa và không thể thay đổi!");
-                return;
-            }
-        }
-    } else {
-        // Xử lý cho các ô từ 2 đến 8
-        let firstSlot = student.timeSlots[0];
-        if (!firstSlot || firstSlot.state !== 'yellow') {
-            alert("Bạn phải điểm danh ô đầu tiên trước!");
-            return;
-        }
-
-        let timeSinceFirst = (now - firstSlot.timestamp) / (1000 * 60 * 60);
-        if (timeSinceFirst < 10) {
-            alert("Chưa đủ 10 tiếng kể từ lúc điểm danh ô đầu tiên để mở các ô tiếp theo!");
-            return;
-        }
-
-        if (slot.state === 'normal') {
-            student.timeSlots[slotIdx] = { state: 'yellow', timestamp: now };
-        } else if (slot.state === 'yellow') {
-            let elapsedSinceThis = (now - slot.timestamp) / (1000 * 60 * 60);
-            if (elapsedSinceThis >= 10) {
-                alert("Đã quá 10 tiếng, dữ liệu điểm danh này đã được cố định và không thể thay đổi!");
-                return;
-            }
-            student.timeSlots[slotIdx] = { state: 'normal', timestamp: null };
-        }
-    }
-
-    saveDatabaseState();
-
-    // Vẽ lại giao diện danh sách lớp đó
-    const classKeyId = classKey.replace(/\s+/g, '-');
-    const studentsArr = bigClassesDatabase[classKey].students;
-    document.getElementById(`studentList-${classKeyId}`).innerHTML = renderStudentCardsHtml(classKey, studentsArr);
-}
-
-// HÀM RESET TẤT CẢ CÁC Ô ĐIỂM DANH (TIME SLOTS) CỦA HỌC SINH
-async function confirmResetTimeSlots() {
-    const passwordInput = document.getElementById('uploadPasswordInput');
-    if (passwordInput.value !== UPLOAD_SECRET_PASSWORD) {
-        alert("Sai mật khẩu! Bạn không có quyền thực hiện thao tác này.");
-        return;
-    }
-
-    if (confirm("⚠️ Bạn có chắc chắn muốn reset toàn bộ các ô điểm danh (màu vàng) và trạng thái vắng của tất cả học sinh không? (Danh sách lớp và học sinh được giữ nguyên)")) {
-        // Duyệt qua tất cả các lớp và học sinh để reset mảng ô điểm danh và trạng thái
-        Object.keys(bigClassesDatabase).forEach(classKey => {
-            let classObj = bigClassesDatabase[classKey];
-            if (classObj && classObj.students) {
-                classObj.students.forEach(student => {
-                    student.timeSlots = Array(8).fill({ state: 'normal', timestamp: null });
-                    student.status = 'present';
-                    student.absentTime = "";
-                });
-            }
-        });
-
-        // Lưu lại trạng thái mới lên LocalStorage và Firebase
-        await saveDatabaseState();
-        
-        // Vẽ lại toàn bộ giao diện hệ thống
-        renderFullSystemUI();
-        
-        document.getElementById('fileStatusMessage').style.color = "#00ff66";
-        document.getElementById('fileStatusMessage').innerText = "🔄 Đã reset thành công toàn bộ các ô điểm danh của học sinh!";
-    }
-}
 
 
 
 
-	window.addEventListener('DOMContentLoaded', () => {
-    // 1. Đọc tham số 'lop' từ URL (ví dụ: ?lop=Skykid)
-    const urlParams = new URLSearchParams(window.location.search);
-    const targetLop = urlParams.get('class');
 
-    if (targetLop) {
-        // 2. Tìm phần tử chứa tên lớp hoặc ID tương ứng trong HTML 2
-        // (Giả sử các thẻ biểu diễn lớp có attribute data-lop="tên_lớp" hoặc id tương ứng)
-        const element = document.querySelector(`[data-lop="${targetLop}"]`) || document.getElementById(targetLop);
-
-        if (element) {
-            // 3. Cuộn mượt mà đến vị trí của lớp đó
-            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-            // 4. Thêm hiệu ứng nổi bật (ví dụ: đổi màu viền, chớp nháy hoặc thêm class highlight)
-            element.classList.add('highlight-class');
-            
-            // Hoặc đổi style trực tiếp nếu chưa có sẵn class CSS:
-            element.style.transition = 'all 0.5s ease';
-            element.style.boxShadow = '0 0 15px #00ff00';
-            element.style.border = '2px solid #00ff00';
-        }
-    }
-});
 
 
 function updateClassFullStatus(classKey, isChecked) {
@@ -1974,7 +1816,7 @@ function backupAttendanceData(){
             phone:s.phone,
             status:s.status,
             note:s.note,
-            timeSlots:s.timeSlots||[],
+          
             absentTime:s.absentTime||""
         }));
     });
