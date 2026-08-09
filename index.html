@@ -1346,9 +1346,20 @@ function addNewStudentToClass(classKey) {
         timeSlots: Array(8).fill({ state: 'normal', timestamp: null })
     });
 
-    // 🟢 Bật cờ đánh dấu lớp có học sinh mới
-    bigClassesDatabase[classKey].hasNewStudent = true;
-    saveDatabaseState();
+  // 🟢 Đánh dấu lớp có học sinh mới
+// Màu nền sẽ tự động hết hạn sau 1 giờ
+
+const now = Date.now();
+
+bigClassesDatabase[classKey].hasNewStudent = true;
+
+bigClassesDatabase[classKey].newStudentHighlightUntil =
+    now + (60 * 60 * 1000);
+
+// Lưu trạng thái để các thiết bị khác cũng nhận được
+saveDatabaseState();
+
+
     
     // Reset ô input và cập nhật lại giao diện hiển thị của lớp
     nameInput.value = '';
