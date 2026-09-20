@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -191,6 +191,75 @@
     .tab{display:block!important} .tw{max-height:none;border:0}
     thead th{position:static} body{background:#fff}
   }
+
+  /* ================= NỀN TỐI VỪA · nút đổi sáng/tối (20/09/2026) ================= */
+  html[data-theme="dark"]{
+    --blue:#7aa6f0; --blue-d:#aecbff; --blue-l:#3d4a61; --line:#57647c;
+    --ink:#eef3fb; --ink-2:#b6c3d7; --bg:#343d4d; --card:#3f4a5c;
+    --red:#ffa8a8; --red-l:#4d2f34; --amber:#ffd08a; --amber-l:#4e4128;
+    --green:#96e0b4; --green-l:#2c4635;
+    --sh:0 1px 2px rgba(0,0,0,.26),0 8px 22px rgba(0,0,0,.18);
+    color-scheme:dark;
+  }
+  html[data-theme="dark"] header{background:linear-gradient(135deg,#37598f 0%,#294470 60%,#20365a 100%)}
+  html[data-theme="dark"] nav button.on{background:var(--bg);color:#dbe8ff}
+  html[data-theme="dark"] .kpi{background:var(--card)}
+  html[data-theme="dark"] .kpi.clk:hover, html[data-theme="dark"] .kpi.clk:focus-visible{border-color:#6f88b3}
+  html[data-theme="dark"] .card h2{color:var(--blue-d)}
+  html[data-theme="dark"] table{background:var(--card)}
+  html[data-theme="dark"] thead th{background:#48546a;color:#dae3f2}
+  html[data-theme="dark"] thead th:hover{background:#525f78}
+  html[data-theme="dark"] tbody td{border-bottom:1px solid #4b5769}
+  html[data-theme="dark"] tbody tr:hover{background:#485568}
+  html[data-theme="dark"] tr.sumrow td, html[data-theme="dark"] .sumrow td{background:#45526b;border-top:2px solid #6b7c9e}
+  html[data-theme="dark"] input[type=search], html[data-theme="dark"] input[type=text], html[data-theme="dark"] input[type=number], html[data-theme="dark"] input[type=password], html[data-theme="dark"] select, html[data-theme="dark"] textarea{background:#2e3746;color:var(--ink);border-color:var(--line)}
+  html[data-theme="dark"] input::placeholder{color:#8e9db4}
+  html[data-theme="dark"] input:focus, html[data-theme="dark"] select:focus, html[data-theme="dark"] textarea:focus{outline:2px solid #55759f;border-color:#6790cc}
+  html[data-theme="dark"] .form input, html[data-theme="dark"] .form select, html[data-theme="dark"] .form textarea{background:#2e3746;color:var(--ink)}
+  html[data-theme="dark"] .btn{background:var(--blue);border-color:var(--blue);color:#101a29}
+  html[data-theme="dark"] .btn:hover{background:#9dc0f7;border-color:#9dc0f7}
+  html[data-theme="dark"] .btn.ghost{background:transparent;color:#c6dbff;border-color:#5c6c86}
+  html[data-theme="dark"] .btn.ghost:hover{background:#48566d;border-color:#71869f}
+  html[data-theme="dark"] .btn.danger{background:transparent;border-color:#8a5454;color:#ffbdbd}
+  html[data-theme="dark"] .btn.danger:hover{background:#4d2f34;border-color:#a86262}
+  html[data-theme="dark"] .callbtn{background:#2c4a38;border-color:#4a7a5f;color:#b3ecc9}
+  html[data-theme="dark"] .callbtn.alt{background:#2e3746;border-color:#5c6c86;color:#c6dbff}
+  html[data-theme="dark"] .pager button{background:#2e3746;color:var(--ink);border-color:var(--line)}
+  html[data-theme="dark"] .pager button:not(:disabled):hover{background:#48566d}
+  html[data-theme="dark"] .modal{background:var(--card)}
+  html[data-theme="dark"] .modal .mh{background:var(--card);border-color:var(--line)}
+  html[data-theme="dark"] code{background:#48546a;color:#e2eaf8}
+  html[data-theme="dark"] .kv td{border-bottom:1px solid #4b5769}
+  html[data-theme="dark"] .logbox{border-color:var(--line);background:#39434f}
+  html[data-theme="dark"] .tag{background:#2e3746}
+  html[data-theme="dark"] .toast{background:#35589a}
+  html[data-theme="dark"] .badge.on{background:#ffc247;color:#3a2b00}
+  html[data-theme="dark"] .ov{background:rgba(10,14,22,.60)}
+  html[data-theme="dark"] *{scrollbar-color:#5b6980 #333c4c}
+  html[data-theme="dark"] ::-webkit-scrollbar-track{background:#333c4c}
+  html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:#5b6980;border-radius:6px;border:2px solid #333c4c}
+  html[data-theme="dark"] ::-webkit-scrollbar-thumb:hover{background:#6c7b93}
+  /* ---------- 📞 TAB CUỘC GỌI ĐẾN ---------- */
+  #nen-btn{padding:5px 11px;font-size:12px;white-space:nowrap}
+  .call-phone-box{text-align:center;padding:6px 4px 2px}
+  .call-phone{font-size:34px;font-weight:800;letter-spacing:1.5px;color:#aecbff;margin:2px 0;font-variant-numeric:tabular-nums}
+  html[data-theme="light"] .call-phone{color:var(--blue-d)}
+  .call-sep{border:0;border-top:1px solid var(--line);margin:16px 0 14px}
+  .call-empty{text-align:center;padding:26px 10px;color:var(--ink-2);line-height:1.7}
+  .call-empty b{color:var(--ink)}
+  #call-badge{display:none;background:#ff5f5f;color:#fff;border-radius:999px;font-size:11px;font-weight:800;
+    padding:1px 7px;margin-left:2px;vertical-align:middle}
+  .call-tooleft{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:2px 0 12px;font-size:13px;color:var(--ink-2)}
+  .call-moi{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
+  /* bản in / xuất PDF luôn là nền sáng */
+  @media print{
+    html[data-theme="dark"]{--bg:#fff;--card:#fff;--ink:#000;--ink-2:#333;--line:#bbb;--blue-d:#12325c}
+    html[data-theme="dark"] body{background:#fff!important;color:#000!important}
+    html[data-theme="dark"] .card,html[data-theme="dark"] .kpi,html[data-theme="dark"] table,html[data-theme="dark"] .modal{background:#fff!important;color:#000!important}
+    html[data-theme="dark"] thead th{background:#eef2f8!important;color:#12325c!important}
+    html[data-theme="dark"] tbody td{border-bottom:1px solid #ddd!important}
+    #nen-btn{display:none!important}
+  }
 </style>
 <style id="printSettingsStyle">
 @media print{ @page{ size: A5 portrait; margin: 5mm } }
@@ -252,6 +321,9 @@
 </style>
 </head>
 <body>
+<script id="nen-som">/* nền đã chọn lần trước — chạy trước khi trang vẽ nên không bị nháy */
+try{var __t=localStorage.getItem("langha_nen_v1");if(__t)document.documentElement.dataset.theme=__t;}catch(e){}
+</script>
 
 <header>
   <div class="hwrap">
@@ -268,6 +340,7 @@
       <span class="badge" id="cloud" title="Trạng thái đồng bộ Firebase">☁ Firebase: chưa kết nối</span>
       <span class="badge" id="dirty" title="Số thay đổi đã lưu trong máy này">chưa có thay đổi</span>
       <span class="badge" id="asof">—</span>
+      <button class="btn ghost" id="nen-btn" title="Đổi nền sáng / tối">🌗 Nền tối vừa</button>
     </div>
     <nav>
       <button class="on" data-tab="dash">
@@ -278,6 +351,7 @@
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 11a3 3 0 1 0 0-6"/><path d="M18 20a6 6 0 0 0-3-5.2"/></svg>
         Khách hàng
       </button>
+      <button data-tab="call" id="call-tab-btn">📞 Cuộc gọi <span id="call-badge"></span></button>
       <button data-tab="px">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 2h9l4 4v16H6z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>
         Phiếu xuất T9
@@ -364,6 +438,7 @@
         <button class="btn ghost" id="x-kh">Xoá lọc</button>
         <button class="btn" id="add-kh">➕ Thêm khách hàng</button>
         <button class="btn ghost" id="order-kh">🧾 Đặt đơn hàng</button>
+        <button class="btn ghost" id="call-kh">📞 Cuộc gọi đến</button>
         <button class="btn ghost" id="csv-kh">⬇ Xuất CSV (đang lọc)</button>
         <button class="btn ghost" id="data-kh">⚙ Dữ liệu &amp; sao lưu</button>
         <span class="count" id="c-kh"></span>
@@ -375,6 +450,38 @@
         </table>
       </div>
       <div class="pager" id="p-kh"></div>
+    </div>
+  </section>
+
+  <!-- ================= 📞 CUỘC GỌI ĐẾN ================= -->
+  <section class="tab" id="tab-call">
+    <div class="card">
+      <h2>📞 Tra cứu cuộc gọi đến</h2>
+      <p class="hint">Số gọi đến lấy từ Firebase (incoming_call) mỗi 3 giây · khớp với danh sách khách hàng trong trang để hiện ngay hồ sơ, công nợ và nút đặt đơn.</p>
+      <div class="call-tooleft">
+        <button class="btn ghost" id="call-watch">⏸ Tạm dừng theo dõi</button>
+        <label class="chk"><input type="checkbox" id="call-sound" checked> 🔔 Âm báo</label>
+        <label class="chk"><input type="checkbox" id="call-jump" checked> ⤵ Tự mở tab này khi có cuộc gọi</label>
+        <span id="call-status">Đang khởi động…</span>
+      </div>
+      <div class="grid cols2">
+        <div><div id="call-live"></div></div>
+        <div><div id="call-info"></div></div>
+      </div>
+      <div class="call-moi">
+        <b style="font-size:12.5px">🧪 Thử ngay:</b>
+        <input type="text" id="call-sim-sdt" placeholder="Nhập số điện thoại rồi Enter" style="max-width:230px">
+        <button class="btn ghost" id="call-sim">Giả lập cuộc gọi</button>
+        <span class="dim" style="font-size:12px">(kiểm tra giao diện khi chưa có cuộc gọi thật)</span>
+      </div>
+    </div>
+    <div class="card">
+      <h2 style="display:flex;align-items:center;gap:10px;justify-content:space-between">
+        <span>🕘 Lịch sử cuộc gọi</span>
+        <button class="btn danger" id="call-xoa">🗑 Xoá lịch sử</button>
+      </h2>
+      <p class="hint">Lưu trên máy này · tối đa 50 cuộc gần nhất · bấm một dòng để xem lại hồ sơ khách</p>
+      <div id="call-his"></div>
     </div>
   </section>
 
@@ -2294,6 +2401,349 @@ function inDong(){
   IN_OPEN = false;
 }
 
+/* ================= ĐỔI NỀN SÁNG / TỐI VỪA ================= */
+const LS_NEN = "langha_nen_v1";
+function nenAp(t){
+  if(t !== "light") t = "dark";
+  const r = document.documentElement;
+  if(r && r.dataset) r.dataset.theme = t;
+  const b = document.querySelector("#nen-btn");
+  if(b) b.textContent = (t === "dark" ? "🌗 Nền tối vừa" : "☀️ Nền sáng");
+  try{ localStorage.setItem(LS_NEN, t); }catch(e){}
+}
+function nenLoad(){
+  let t = "dark";
+  try{ t = localStorage.getItem(LS_NEN) || "dark"; }catch(e){}
+  nenAp(t);
+}
+function nenDoi(){
+  const r = document.documentElement;
+  const dang = (r && r.dataset && r.dataset.theme) || "dark";
+  nenAp(dang === "dark" ? "light" : "dark");
+  toast(dang === "dark" ? "Đã đổi sang ☀️ nền sáng" : "Đã đổi sang 🌗 nền tối vừa", "ok");
+}
+
+/* ================= 📞 CUỘC GỌI ĐẾN (tích hợp từ diemdanh.html) ================= */
+const LS_CALL  = "langha_cuocgoi_v1";
+const CALL_URL = "https://firestore.googleapis.com/v1/projects/laviehunglien-1f741/databases/(default)/documents/incoming_call/current";
+const CALL_MS  = 3000;                     // 3 giây kiểm tra một lần (như diemdanh.html)
+let CALL = {list:[], lastKey:"", on:true, sound:true, jump:true, busy:false,
+            lastAt:0, err:"", first:true, cur:null, timer:null, soMoi:0};
+
+function callLoad(){
+  try{
+    const o = JSON.parse(localStorage.getItem(LS_CALL) || "{}");
+    if(Array.isArray(o.list)) CALL.list = o.list;
+    if(o.sound === false) CALL.sound = false;
+    if(o.jump  === false) CALL.jump  = false;
+    if(o.on    === false) CALL.on    = false;
+  }catch(e){}
+}
+function callSave(){
+  try{ localStorage.setItem(LS_CALL, JSON.stringify({list:CALL.list.slice(0,50), sound:CALL.sound, jump:CALL.jump, on:CALL.on})); }catch(e){}
+}
+/* chuẩn hoá số: 0983 850 393 · +84 983 850 393 · 84983850393 → 983850393 */
+function callClean(p){
+  let d = String(p == null ? "" : p).replace(/\D/g, "");
+  if(d.length > 10 && d.indexOf("84") === 0) d = d.slice(2);
+  if(d.charAt(0) === "0") d = d.slice(1);
+  return d;
+}
+function callFmt(p){
+  const d = String(p == null ? "" : p).replace(/\D/g, "");
+  if(d.length === 10) return d.slice(0,4) + "." + d.slice(4,7) + "." + d.slice(7);
+  if(d.length === 11) return d.slice(0,4) + "." + d.slice(4,7) + "." + d.slice(7,10) + " " + d.slice(10);
+  if(d.length === 9)  return d.slice(0,3) + " " + d.slice(3,6) + " " + d.slice(6);
+  return String(p == null ? "" : p);
+}
+/* tra khách theo số: khớp cả khi khách có nhiều số, có/không số 0 ở đầu */
+let CALL_IDX = null, CALL_IDX_REV = -1;
+function callIndex(){
+  if(CALL_IDX && CALL_IDX_REV === (EDIT.rev || 0)) return CALL_IDX;
+  const idx = {};
+  KH.forEach(c => {
+    String(c.sdt || "").split(/[^\d]+/).forEach(x => {
+      const k = callClean(x);
+      if(k && k.length >= 8){ (idx[k] = idx[k] || []).push(c); }
+    });
+  });
+  CALL_IDX = idx; CALL_IDX_REV = (EDIT.rev || 0);
+  return idx;
+}
+function callFind(phone){
+  const k = callClean(phone);
+  if(!k) return [];
+  const idx = callIndex();
+  return idx[k] || idx[k.slice(-9)] || [];
+}
+function callMoi(phone){                       // khách mới: số chưa có trong sổ
+  return phone && callFind(phone).length === 0;
+}
+
+/* ---------- âm báo ngắn (không cần file ngoài) ---------- */
+function callBeep(){
+  if(!CALL.sound) return;
+  try{
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if(!AC) return;
+    const ac = new AC();
+    [0, 0.22, 0.44].forEach((t, i) => {
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = "sine"; o.frequency.value = i === 2 ? 1046 : 880;
+      g.gain.setValueAtTime(0.0001, ac.currentTime + t);
+      g.gain.exponentialRampToValueAtTime(0.22, ac.currentTime + t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + t + 0.18);
+      o.connect(g); g.connect(ac.destination);
+      o.start(ac.currentTime + t); o.stop(ac.currentTime + t + 0.2);
+    });
+  }catch(e){}
+}
+
+/* ---------- giao diện ---------- */
+function callTg(ts){
+  if(!ts) return "";
+  const d = new Date(ts), p = n => String(n).padStart(2, "0");
+  return p(d.getHours()) + ":" + p(d.getMinutes()) + ":" + p(d.getSeconds());
+}
+function callCach(ts){
+  const s = Math.max(0, Math.round((Date.now() - ts) / 1000));
+  if(s < 60) return s + " giây trước";
+  if(s < 3600) return Math.round(s/60) + " phút trước";
+  if(s < 86400) return Math.round(s/3600) + " giờ trước";
+  return Math.round(s/86400) + " ngày trước";
+}
+function callBadge(){
+  const b = document.querySelector("#call-badge");
+  if(b){
+    b.textContent = CALL.soMoi ? String(CALL.soMoi) : "";
+    b.style.display = CALL.soMoi ? "inline-block" : "none";
+  }
+}
+function callLiveHtml(){
+  if(!CALL.cur) return '<div class="call-empty">📵 <b>Đang chờ cuộc gọi…</b><br>' +
+    '<span class="dim">Số gọi đến sẽ hiện ở đây trong ~3 giây. Trang vẫn dùng bình thường trong lúc chờ.</span></div>';
+  const c = CALL.cur, kq = callFind(c.phone), moi = kq.length === 0;
+  return '' +
+  '<div class="call-phone-box">' +
+    '<div class="dim" style="font-size:12px;letter-spacing:.5px">SỐ ĐIỆN THOẠI GỌI ĐẾN</div>' +
+    '<div class="call-phone">' + esc(callFmt(c.phone)) + '</div>' +
+    '<div class="dim" style="font-size:12.5px">Đổ chuông ' + esc(c.gio || "—") +
+      ' · nhận lúc ' + esc(callTg(c.at)) + ' <b>(' + esc(callCach(c.at)) + ')</b></div>' +
+    '<div class="quick" style="margin-top:8px">' +
+      '<a class="callbtn big" href="tel:' + esc(c.phone) + '">📞 Gọi lại ngay</a>' +
+      (moi ? '<button class="btn" id="call-them">➕ Thêm khách mới với số này</button>'
+           : '<button class="btn" id="call-don">🧾 Đặt đơn hàng</button>') +
+      (moi ? '' : '<button class="btn ghost" id="call-hoso">👤 Mở hồ sơ khách</button>') +
+      '<button class="btn ghost" id="call-copy">⧉ Sao chép số</button>' +
+    '</div>' +
+    '<div class="note ' + (moi ? "bad" : "ok") + '" style="margin:10px 0 0">' +
+      (moi
+        ? '<b>⚠️ Khách hàng mới</b> — số <b>' + esc(callFmt(c.phone)) + '</b> chưa có trong sổ (' + nf(KH.length) + ' khách).'
+        : '<b>✓ Khớp ' + kq.length + ' khách trong sổ</b>: ' + kq.slice(0, 3).map(x => esc(x.ma + " · " + (x.ten||"")).slice(0, 46)).join(" | ")) +
+    '</div>' +
+  '</div>';
+}
+function callInfoHtml(){
+  if(!CALL.cur) return '<p class="hint">Chưa có cuộc gọi nào. Thông tin khách sẽ hiện ngay khi có số gọi đến.</p>';
+  const kq = callFind(CALL.cur.phone);
+  if(!kq.length){
+    return '<div class="note bad"><b>Khách mới — chưa có trong sổ</b><br>' +
+      'Số <b>' + esc(callFmt(CALL.cur.phone)) + '</b> không khớp khách nào trong ' + nf(KH.length) + ' khách.<br>' +
+      'Bấm <b>➕ Thêm khách mới với số này</b> ở khung bên để tạo hồ sơ (mã KH tự tăng, tự đồng bộ Firestore).</div>';
+  }
+  return kq.map(c => {
+    const soDep = String(c.sdt || "").split(/[^\d]+/).filter(x => x.length >= 8).map((x, i) => (i === 0 ? callFmt(x) : x)).join(" · ");
+    return '<dl class="dl" style="grid-template-columns:130px 1fr;margin:0 0 12px">' +
+      '<dt>Mã khách hàng</dt><dd><b>' + esc(c.ma) + '</b></dd>' +
+      '<dt>Tên khách hàng</dt><dd><b>' + esc(c.ten || "—") + '</b></dd>' +
+      '<dt>Nhóm / Kho</dt><dd>' + esc(c.nhom || "—") + ' · ' + esc(c.kho || "—") + '</dd>' +
+      '<dt>Địa chỉ</dt><dd>' + esc(c.dia || "—") + '</dd>' +
+      '<dt>Điện thoại</dt><dd>' + esc(soDep || "—") + '</dd>' +
+      '<dt>Ghi chú</dt><dd>' + esc(c.ghic || "—") + '</dd>' +
+      '<dt>Nợ tiền</dt><dd class="' + (c.noT > 0 ? "neg" : "") + '"><b>' + vnd(c.noT) + '</b></dd>' +
+      '<dt>Nợ vỏ</dt><dd class="' + (c.noV > 0 ? "neg" : "") + '"><b>' + nf(c.noV) + ' bình/thùng</b></dd>' +
+      '</dl>' +
+      '<div class="quick">' +
+        '<button class="btn" data-call-don="' + esc(c.ma) + '">🧾 Đặt đơn cho khách này</button>' +
+        '<button class="btn ghost" data-call-hoso="' + esc(c.ma) + '">👤 Mở hồ sơ</button>' +
+        (c.sdt ? '<a class="callbtn" href="tel:' + esc(String(c.sdt).split(/[^\d]+/)[0]) + '">📞 Gọi ' + esc(callFmt(String(c.sdt).split(/[^\d]+/)[0])) + '</a>' : '') +
+      '</div>';
+  }).join('<hr class="call-sep">');        // nhiều khách cùng số -> ngăn bằng 1 đường kẻ
+}
+function callHisHtml(){
+  if(!CALL.list.length) return '<p class="hint">Chưa có cuộc gọi nào. Danh sách lưu trên máy này (tối đa 50 cuộc gần nhất).</p>';
+  return '<div class="tw" style="max-height:420px"><table id="t-call"><thead><tr>' +
+      '<th style="width:130px">Thời gian</th><th>Số điện thoại</th><th>Khách hàng</th>' +
+      '<th style="width:80px" class="num">Số lần</th><th style="width:150px"></th></tr></thead><tbody>' +
+    CALL.list.map((x, i) => {
+      const kq = callFind(x.phone);
+      const ten = kq.length ? (kq[0].ma + " · " + (kq[0].ten || "")) : '<span class="neg">⚠️ Khách hàng mới</span>';
+      return '<tr data-call-i="' + i + '">' +
+        '<td class="nowrap">' + esc(x.date || "") + ' <b>' + esc(x.gio || "") + '</b></td>' +
+        '<td class="mono">' + esc(callFmt(x.phone)) + '</td>' +
+        '<td class="nm-c">' + ten + '</td>' +
+        '<td class="num">' + nf(x.count || 1) + '</td>' +
+        '<td class="nowrap"><a class="callbtn" href="tel:' + esc(x.phone) + '">📞 Gọi</a>' +
+          (kq.length ? ' <button class="btn ghost" style="padding:4px 9px" data-call-don="' + esc(kq[0].ma) + '">🧾</button>' : '') + '</td></tr>';
+    }).join("") + '</tbody></table></div>';
+}
+function callRender(){
+  const live = document.querySelector("#call-live"), info = document.querySelector("#call-info"), his = document.querySelector("#call-his");
+  if(live) live.innerHTML = callLiveHtml();
+  if(info) info.innerHTML = callInfoHtml();
+  if(his)  his.innerHTML = callHisHtml();
+  const st = document.querySelector("#call-status");
+  if(st){
+    const err = CALL.err;
+    st.innerHTML = (CALL.on ? (err ? '<span class="neg">⚠ ' + esc(err) + '</span>'
+                                     : '🟢 Đang theo dõi cuộc gọi · kiểm tra gần nhất ' + callTg(CALL.lastAt))
+                            : '⏸ Đã tạm dừng theo dõi') +
+      ' · tổng ' + nf(CALL.list.length) + ' cuộc đã ghi';
+  }
+  const on = document.querySelector("#call-watch");
+  if(on) on.textContent = CALL.on ? "⏸ Tạm dừng theo dõi" : "▶ Bật theo dõi";
+  const s = document.querySelector("#call-sound"); if(s) s.checked = !!CALL.sound;
+  const j = document.querySelector("#call-jump");  if(j) j.checked = !!CALL.jump;
+  callBadge();
+}
+/* ---------- nhận cuộc gọi mới ---------- */
+function callAdd(phone, gio, at, imLang){
+  const key = phone + "_" + gio;
+  const d = new Date(at || Date.now());
+  const date = d.getDate() + "/" + (d.getMonth() + 1) + "/" + d.getFullYear();
+  const i = CALL.list.findIndex(x => callClean(x.phone) === callClean(phone));
+  if(i >= 0){
+    CALL.list[i].count = (CALL.list[i].count || 1) + 1;
+    CALL.list[i].gio = gio; CALL.list[i].date = date; CALL.list[i].at = at;
+    const it = CALL.list.splice(i, 1)[0]; CALL.list.unshift(it);
+  }else{
+    CALL.list.unshift({phone:phone, gio:gio, date:date, at:at, count:1});
+  }
+  if(CALL.list.length > 50) CALL.list.length = 50;
+  CALL.cur = CALL.list[0];
+  CALL.lastKey = key;
+  callSave();
+  if(!imLang){
+    CALL.soMoi++;
+    callBeep();
+    const kq = callFind(phone);
+    toast("📞 Cuộc gọi đến " + callFmt(phone) + " — " +
+      (kq.length ? kq[0].ma + " · " + (kq[0].ten || "") : "khách hàng mới"), kq.length ? "ok" : "bad");
+    if(CALL.jump && document.querySelector("#tab-call")) goTab("call");
+  }
+  callRender();
+}
+function callCheck(){
+  if(!CALL.on || CALL.busy) return Promise.resolve();
+  CALL.busy = true;
+  return fetch(CALL_URL + "?key=" + FB_CONF.apiKey)
+    .then(r => r.ok ? r.json() : Promise.reject(new Error("HTTP " + r.status)))
+    .then(d => {
+      CALL.busy = false; CALL.lastAt = Date.now(); CALL.err = "";
+      const f = (d && d.fields) || null;
+      const phone = f && f.phone ? String(f.phone.stringValue || "").trim() : "";
+      const gio   = f && f.time  ? String(f.time.stringValue || "").split(" ")[0] : "";
+      const at    = Date.parse(d && d.updateTime) || Date.now();
+      if(!phone){ callRender(); return; }
+      const key = phone + "_" + gio;
+      if(CALL.first){                       // mở trang: ghi nhận cuộc gọi đang lưu, KHÔNG báo động
+        CALL.first = false;
+        CALL.cur = {phone:phone, gio:gio, at:at};
+        CALL.lastKey = key;
+        const cu = CALL.list.find(x => x.phone === phone && x.gio === gio);
+        if(cu) CALL.cur = cu;
+        callRender(); return;
+      }
+      if(key !== CALL.lastKey && (CALL.list[0] ? key !== (CALL.list[0].phone + "_" + CALL.list[0].gio) : true)){
+        callAdd(phone, gio, at);
+      }else{
+        CALL.cur = CALL.list[0] || {phone:phone, gio:gio, at:at};
+        callRender();
+      }
+    })
+    .catch(e => { CALL.busy = false; CALL.err = "Chưa đọc được cuộc gọi (" + (e && e.message || e) + ")"; callRender(); });
+}
+function callRingOn(){
+  if(CALL.timer) return;
+  CALL.timer = setInterval(() => { if(!document.hidden) callCheck(); }, CALL_MS);
+  callCheck();
+}
+function callRingOff(){ if(CALL.timer){ clearInterval(CALL.timer); CALL.timer = null; } }
+function callToggle(){ CALL.on = !CALL.on; callSave(); if(CALL.on) callRingOn(); else callRingOff(); callRender(); }
+function callXoaHis(){
+  if(CALL.list.length && !confirm("Xoá toàn bộ lịch sử cuộc gọi đã lưu trên máy này?")) return;
+  CALL.list = []; CALL.cur = null; CALL.first = true; CALL.soMoi = 0; callSave(); callRender();
+  toast("Đã xoá lịch sử cuộc gọi", "bad");
+}
+/* giả lập để thử ngay không cần chờ máy tổng đài */
+function callSim(){
+  const el = document.querySelector("#call-sim-sdt");
+  const p = (el && el.value || "").replace(/\D/g, "");
+  if(p.length < 8) return toast("Nhập số điện thoại để giả lập (tối thiểu 8 số)", "bad");
+  callAdd(p, new Date().toTimeString().slice(0,5), Date.now());
+}
+function callGoTab(){
+  goTab("call");
+  CALL.soMoi = 0; callBadge();
+  callRender();
+}
+
+/* ---------- gắn sự kiện trong tab cuộc gọi ---------- */
+function callWire(){
+  const f = id => document.querySelector("#" + id);
+  document.addEventListener("click", e => {
+    const t = e.target;
+    if(t.closest("#call-tab-btn") || t.closest("#call-kh")){ callGoTab(); return; }
+    if(t.closest("#call-watch")){ callToggle(); return; }
+    if(t.closest("#call-xoa")){ callXoaHis(); return; }
+    if(t.closest("#call-sim")){ callSim(); return; }
+    if(t.closest("#call-them")){                       // khách mới từ số đang gọi
+      const p = CALL.cur ? CALL.cur.phone : "";
+      openOrder(null);
+      const el = document.querySelector("#o-khsdt");
+      if(el){ el.value = String(p).slice(-9); el.dispatchEvent(new Event("input", {bubbles:true})); }
+      const nb = document.querySelector("#o-newkh"); if(nb) nb.click();
+      const tn = document.querySelector("#o-nk-sdt"); if(tn) tn.value = String(p);
+      return;
+    }
+    if(t.closest("#call-don")){
+      const kq = CALL.cur ? callFind(CALL.cur.phone) : [];
+      if(kq.length) openOrder(null, {maKH:kq[0].ma, tenKH:kq[0].ten, dia:kq[0].dia, sdt:kq[0].sdt});
+      return;
+    }
+    if(t.closest("#call-hoso")){
+      const kq = CALL.cur ? callFind(CALL.cur.phone) : [];
+      if(kq.length) khModal(kq[0]);
+      return;
+    }
+    if(t.closest("#call-copy")){
+      const p = CALL.cur ? callFmt(CALL.cur.phone) : "";
+      try{ navigator.clipboard.writeText(p); toast("✓ Đã sao chép " + p, "ok"); }catch(err){ toast("Trình duyệt chặn clipboard", "bad"); }
+      return;
+    }
+    const don = t.closest("[data-call-don]");
+    if(don){ const c = KH.find(x => x.ma === don.dataset.callDon); if(c) openOrder(null, {maKH:c.ma, tenKH:c.ten, dia:c.dia, sdt:c.sdt}); return; }
+    const hs = t.closest("[data-call-hoso]");
+    if(hs){ const c = KH.find(x => x.ma === hs.dataset.callHoso); if(c) khModal(c); return; }
+    const row = t.closest("tr[data-call-i]");
+    if(row && !t.closest("a") && !t.closest("button")){
+      const it = CALL.list[+row.dataset.callI];
+      if(it){ CALL.cur = it; callRender(); }
+      return;
+    }
+  });
+  ["call-sound","call-jump"].forEach(id => {
+    const el = f(id);
+    if(el) el.addEventListener("change", e => {
+      if(id === "call-sound") CALL.sound = e.target.checked; else CALL.jump = e.target.checked;
+      callSave(); if(id === "call-sound" && e.target.checked) callBeep();
+    });
+  });
+  const sim = f("call-sim-sdt");
+  if(sim) sim.addEventListener("keydown", e => { if(e.key === "Enter") callSim(); });
+  document.addEventListener("visibilitychange", () => { if(!document.hidden) callCheck(); });
+}
+
 /* ================= KHỞI ĐỘNG ================= */
 cfLoad();
 loadEdit();
@@ -2308,8 +2758,13 @@ buildPx(); renderPx();
 buildInfo();
 updateDirty();
 inLoadCfg();             // nhớ khổ giấy / chiều in của lần trước
+nenLoad();               // nền sáng / tối vừa đã chọn lần trước
+{ const b = document.querySelector("#nen-btn"); if(b) b.addEventListener("click", nenDoi); }
+callLoad(); callWire();   // 📞 cuộc gọi đến: nạp lịch sử + gắn nút
+callRender();
+callRingOn();             // bắt đầu theo dõi mỗi 3 giây
 updateCloud();
 cfStart();               // mở kênh onSnapshot — nhận/gửi thay đổi tức thì
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a3dd0867cc3628ee',t:'MTc4OTg2NzQ5MA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a3dd2d3a7b2761ec',t:'MTc4OTg2ODk5OA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
