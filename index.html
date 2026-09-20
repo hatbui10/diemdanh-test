@@ -338,7 +338,7 @@ try{var __t=localStorage.getItem("langha_nen_v1");if(__t)document.documentElemen
         <p class="sub">Dữ liệu tháng 9/2026 · nguồn: <span class="mono">LangHa T 9 - 2026.csv</span></p>
       </div>
       <span class="badge" id="cloud" title="Trạng thái đồng bộ Firebase">☁ Firebase: chưa kết nối</span>
-      <span class="badge" id="dirty" title="Số thay đổi đã lưu trong máy này">chưa có thay đổi</span>
+      <span class="badge" id="dirty" title="Chưa thêm, sửa hay xoá gì so với file gốc trong máy">✔ khớp bản gốc</span>
       <span class="badge" id="asof">—</span>
       <button class="btn ghost" id="nen-btn" title="Đổi nền sáng / tối">🌗 Nền tối vừa</button>
     </div>
@@ -1182,9 +1182,10 @@ function countChanges(){
 function updateDirty(){
   const el = document.querySelector("#dirty"); if(!el) return;
   const n = countChanges();
-  el.textContent = n ? "● " + n + " thay đổi chưa xuất" : "chưa có thay đổi";
+  el.textContent = n ? "● " + n + " thay đổi (bấm để xuất)" : "✔ khớp bản gốc";
   el.classList.toggle("on", n > 0);
-  el.title = n ? "Bấm để xuất CSV / JSON" : "Dữ liệu đang khớp bản gốc";
+  el.title = n ? "Số khách + đơn đã thêm / sửa / xoá so với file gốc — bấm để xuất CSV · JSON"
+             : "Chưa thêm, sửa hay xoá gì so với file gốc trong máy — bấm để mở Dữ liệu & sao lưu";
 }
 function toast(msg, kind){
   const t = document.querySelector("#toast"); if(!t) return;
@@ -2766,5 +2767,5 @@ callRingOn();             // bắt đầu theo dõi mỗi 3 giây
 updateCloud();
 cfStart();               // mở kênh onSnapshot — nhận/gửi thay đổi tức thì
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a3dd2d3a7b2761ec',t:'MTc4OTg2ODk5OA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a3dd31642d5f332a',t:'MTc4OTg2OTE2OQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
